@@ -76,11 +76,12 @@ function submit() {
         Name:$("#Name").val().trim(),
         Amount:$("#Amount").val().trim()
     };
+
         $.ajax({
-            url: "/api/default/get",
-            type: "GET",
-            context: this,
-            data: obj,
+            url: '/api/show/',
+            type: 'POST',
+            data:obj,
+            dataType: 'JSON',
             success: function(data) {
                 showResponse(data);
             },
@@ -98,11 +99,6 @@ $(document).ready(function () {
     $("#Name").keypress(function (e) {
         alphabetValidation(e);
     });
-
-    //$("#Amount, #Name").blur(function () {
-    //    validateInputs();
-    //});
-
     $("#Name, #Amount").bind('paste', function (e) {
         e.preventDefault();
     });

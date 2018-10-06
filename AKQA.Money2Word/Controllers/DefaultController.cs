@@ -13,12 +13,11 @@ namespace AKQA.Money2Word.Controllers
             this.service = service;
         }
 
-        public IResponseModel Get([FromUri]InputModel model)
+        [HttpPost]
+        [Route("api/show")]
+        public IHttpActionResult Show(InputModel model)
         {
-            IResponseModel responseModel;
-
-            responseModel = service.FillModel(model);
-            return responseModel;
+            return Ok(service.FillModel(model));
         }
     }
 }

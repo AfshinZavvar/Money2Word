@@ -15,28 +15,24 @@ namespace AKQA.Money2Word.Tests.Controllers
 
         public DefaultControllerTest()
         {
-
             service = new Mock<IService>();
-            service.Setup(x => x.FillModel(It.IsAny<InputModel>())).Returns(
-                (IResponseModel y) =>
-                {
-                    return new ResponseModel() { Name = "TestName", Amount = "123.45" };
-                });
+            sut = new DefaultController(service.Object);
         }
 
         [TestMethod]
-        [Ignore]
+       
         public void Returns_Response()
         {
             //ARRANGE
-            sut = new DefaultController(service.Object);
-            InputModel inputModel = new InputModel() { Amount = "1", Name = "test" };
+            var inputModel = new InputModel() { Amount = "1", Name = "test" };
+            service.Setup(x => x.FillModel(inputModel))
+                .Returns(new ResponseModel() { Name = "TestName", Amount = "123.45" });
 
             //ACT
-            sut.Get(inputModel);
+           var result= sut.Show(inputModel);
 
             //ASSERT
-            service.Verify(x => x.FillModel(It.IsAny<IInputModel>()), Times.Once);
+            service.Verify(x => x.FillModel(inputModel), Times.Once);
         }
     }
 }

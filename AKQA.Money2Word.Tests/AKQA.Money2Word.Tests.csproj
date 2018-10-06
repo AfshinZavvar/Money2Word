@@ -103,6 +103,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\DefaultControllerTest.cs" />
+    <Compile Include="Extensions\FirstOccuranceTest.cs" />
+    <Compile Include="Extensions\LastOccuranceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Controllers\HomeControllerTest.cs" />
     <Compile Include="Services\Money2WordConvertorTest.cs" />

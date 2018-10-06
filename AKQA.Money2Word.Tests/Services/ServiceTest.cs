@@ -30,8 +30,8 @@ namespace AKQA.Money2Word.Tests.Services
         public void Returns_Error_If_Model_Is_Null()
         {
             //Arrange           
-            money2WordConvertor.Setup(x => x.Money2Word(It.IsAny<string>())).Returns(
-                ((string, bool) y) => { return ("TestErrorMessag", true); });
+            string number = null;
+            money2WordConvertor.Setup(x => x.Money2Word(number)).Returns(("TestErrorMessag", true));
             //Act
             var result = sut.FillModel(null);
 
@@ -46,10 +46,14 @@ namespace AKQA.Money2Word.Tests.Services
         public void Returns_Error_If_Number_Convertor_Returns_Error()
         {
             //Arrange           
-            money2WordConvertor.Setup(x => x.Money2Word(It.IsAny<string>())).Returns(
-                ((string, bool) y) => { return ("TestErrorMessag", true); });
+            string number = "1.2.3";
+            var inputModel = new InputModel { Amount = number };
+
+            money2WordConvertor.Setup(x => x.Money2Word(number))
+                .Returns(("TestErrorMessag", true));
+
             //Act
-            var result = sut.FillModel(null);
+            var result = sut.FillModel(inputModel);
 
             //Assert
             Assert.IsTrue(!string.IsNullOrEmpty(result.ErrorMessage));
@@ -59,42 +63,50 @@ namespace AKQA.Money2Word.Tests.Services
         [TestMethod]
         public void Returns_Error_If_Name_Validation_Fails()
         {
-            //Arrange           
-            money2WordConvertor.Setup(x => x.Money2Word(It.IsAny<string>())).Returns(
-                ((string, bool) y) => ("TestText", false));
+            //Arrange   
+            var name = "j";
+            var number = "2.3";
+            var inputModel = new InputModel { Amount = number, Name = name };
 
-            nameValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(
-                ((bool, string) y) => (true, "TestErrorMessage"));
+            money2WordConvertor.Setup(x => x.Money2Word(number))
+                .Returns(("TestText", false));
+
+            nameValidator.Setup(x => x.Validate(name))
+                .Returns((true, "TestErrorMessage"));
+
             //Act
-            var result = sut.FillModel(null);
+            var result = sut.FillModel(inputModel);
 
             //Assert
             Assert.IsTrue(!string.IsNullOrEmpty(result.ErrorMessage));
             Assert.IsNotNull(result.Amount);
             Assert.IsNull(result.Name);
-            nameValidator.Verify(x => x.Validate(It.IsAny<string>()), Times.Once);
-            money2WordConvertor.Verify(x => x.Money2Word(It.IsAny<string>()), Times.Once);
+            nameValidator.Verify(x => x.Validate(name), Times.Once);
+            money2WordConvertor.Verify(x => x.Money2Word(number), Times.Once);
         }
 
 
         [TestMethod]
         public void Returns_Response_Model_If_Validations_Pass()
         {
-            //Arrange           
-            money2WordConvertor.Setup(x => x.Money2Word(It.IsAny<string>())).Returns(
-                ((string, bool) y) => ("TestText", false));
+            //Arrange 
+            var name = "MJay";
+            var number = "2.3";
+            var inputModel = new InputModel { Amount = number, Name = name };
 
-            nameValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(
-                ((bool, string) y) => (false, "TestErrorMessage"));
+            money2WordConvertor.Setup(x => x.Money2Word(number))
+                .Returns( ("TestText", false));
+
+            nameValidator.Setup(x => x.Validate(name)).Returns( (false, "TestErrorMessage"));
 
             //Act
-            var result = sut.FillModel(null);
+            var result = sut.FillModel(inputModel);
 
             //Assert
             Assert.IsNotNull(result.Amount);
             Assert.IsNotNull(result.Name);
-            nameValidator.Verify(x => x.Validate(It.IsAny<string>()), Times.Once);
-            money2WordConvertor.Verify(x => x.Money2Word(It.IsAny<string>()), Times.Once);
+            nameValidator.Verify(x => x.Validate(name), Times.Once);
+            money2WordConvertor.Verify(x => x.Money2Word(number), Times.Once);
         }
     }
 }
