@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Money2Word", "AKQA.Money2Word\Money2Word.csproj", "{E2C5FAE1-3DAF-4935-87FD-F016E8DE0EE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Money2Word", "Money2Word\Money2Word.csproj", "{E2C5FAE1-3DAF-4935-87FD-F016E8DE0EE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Money2Word.Tests", "AKQA.Money2Word.Tests\Money2Word.Tests.csproj", "{E2C81A48-8D46-496D-8FAF-C486B1A3973C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Money2Word.Tests", "Money2Word.Tests\Money2Word.Tests.csproj", "{E2C81A48-8D46-496D-8FAF-C486B1A3973C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
