@@ -24,9 +24,9 @@ jobs:
 
       - name: Build main project
         working-directory: ./money2word
-        run: msbuild /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder
+        run: msbuild /t:Build /p:Configuration=Release /t:pipelinePreDeployCopyAllFilesToOneFolder
         
-      - name: Build tests project
+      - name: Build Tests 
         working-directory: ./Money2Word.Tests
-        run: msbuild /t:Build     
+        run: msbuild /t:Build
    
