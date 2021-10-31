@@ -118,7 +118,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AKQA.Money2Word\Money2Word.csproj">
+    <ProjectReference Include="..\Money2Word\Money2Word.csproj">
       <Project>{E2C5FAE1-3DAF-4935-87FD-F016E8DE0EE3}</Project>
       <Name>Money2Word</Name>
     </ProjectReference>
