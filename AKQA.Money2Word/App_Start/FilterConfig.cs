@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace AKQA.Money2Word
+namespace Money2Word
 {
     public class FilterConfig
     {

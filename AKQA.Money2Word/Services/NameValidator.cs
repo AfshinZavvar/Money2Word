@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AKQA.Money2Word.Services
+namespace Money2Word.Services
 {
     public class NameValidator : INameValidator
     {

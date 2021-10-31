@@ -2,9 +2,9 @@
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using AKQA.Money2Word.App_Start;
+using Money2Word.App_Start;
 
-namespace AKQA.Money2Word
+namespace Money2Word
 {
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -17,7 +17,6 @@ namespace AKQA.Money2Word
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             SimpleInjectorConfig.RegisterComponents();
-
         }
     }
 }

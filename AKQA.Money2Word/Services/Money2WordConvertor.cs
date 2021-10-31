@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AKQA.Money2Word.Services
+namespace Money2Word.Services
 {
     public class Money2WordConvertor : IMoney2WordConvertor
     {

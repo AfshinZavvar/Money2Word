@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace AKQA.Money2Word
+namespace Money2Word
 {
     public class RouteConfig
     {

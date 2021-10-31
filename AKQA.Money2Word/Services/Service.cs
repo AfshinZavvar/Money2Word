@@ -1,7 +1,7 @@
-﻿using AKQA.Money2Word.Models;
-using AKQA.Money2Word.Services.Interfaces;
+﻿using Money2Word.Models;
+using Money2Word.Services.Interfaces;
 
-namespace AKQA.Money2Word.Services
+namespace Money2Word.Services
 {
     public class Service : IService
     {

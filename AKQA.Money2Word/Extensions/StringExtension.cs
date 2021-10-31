@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace AKQA.Money2Word.Extensions
+namespace Money2Word.Extensions
 {
     public static class StringExtension
     {

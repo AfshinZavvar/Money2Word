@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace AKQA.Money2Word.Controllers
+namespace Money2Word.Controllers
 {
     public class HomeController : Controller
     {

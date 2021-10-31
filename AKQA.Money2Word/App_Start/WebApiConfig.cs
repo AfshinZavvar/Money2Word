@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace AKQA.Money2Word
+namespace Money2Word
 {
     public static class WebApiConfig
     {

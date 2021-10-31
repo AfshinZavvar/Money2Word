@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace AKQA.Money2Word
+namespace Money2Word
 {
     public class BundleConfig
     {

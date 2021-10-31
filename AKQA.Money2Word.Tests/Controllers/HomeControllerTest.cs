@@ -1,8 +1,8 @@
 ﻿using System.Web.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AKQA.Money2Word.Controllers;
+using Money2Word.Controllers;
 
-namespace AKQA.Money2Word.Tests.Controllers
+namespace Money2Word.Tests.Controllers
 {
     [TestClass]
     public class HomeControllerTest

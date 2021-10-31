@@ -1,6 +1,6 @@
-﻿using AKQA.Money2Word.Models;
-using AKQA.Money2Word.Services;
-using AKQA.Money2Word.Services.Interfaces;
+﻿using Money2Word.Models;
+using Money2Word.Services;
+using Money2Word.Services.Interfaces;
 using SimpleInjector;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Web.Http;
 using System.Web.Mvc;
 
-namespace AKQA.Money2Word.App_Start
+namespace Money2Word.App_Start
 {
     public class SimpleInjectorConfig
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static AKQA.Money2Word.Extensions.StringExtension;
+using static Money2Word.Extensions.StringExtension;
 
-namespace AKQA.Money2Word.Tests.Extensions
+namespace Money2Word.Tests.Extensions
 {
     [TestClass]
     public class FirstOccuranceTest

@@ -1,4 +1,4 @@
-﻿namespace AKQA.Money2Word.Services
+﻿namespace Money2Word.Services
 {
     public interface INameValidator
     {

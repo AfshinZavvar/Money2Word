@@ -9,9 +9,9 @@
     <ProjectGuid>{E2C81A48-8D46-496D-8FAF-C486B1A3973C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AKQA.Money2Word.Tests</RootNamespace>
-    <AssemblyName>AKQA.Money2Word.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <RootNamespace>Money2Word.Tests</RootNamespace>
+    <AssemblyName>Money2Word.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <NuGetPackageImportStamp>
@@ -118,9 +118,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AKQA.Money2Word\AKQA.Money2Word.csproj">
+    <ProjectReference Include="..\AKQA.Money2Word\Money2Word.csproj">
       <Project>{E2C5FAE1-3DAF-4935-87FD-F016E8DE0EE3}</Project>
-      <Name>AKQA.Money2Word</Name>
+      <Name>Money2Word</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -1,7 +1,7 @@
-﻿using AKQA.Money2Word.Services;
+﻿using Money2Word.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace AKQA.Money2Word.Tests.Services
+namespace Money2Word.Tests.Services
 {
     [TestClass]
     public class NameValidationTest

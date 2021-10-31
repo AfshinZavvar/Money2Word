@@ -1,11 +1,10 @@
-﻿using System.Web.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AKQA.Money2Word.Controllers;
-using AKQA.Money2Word.Services.Interfaces;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Money2Word.Controllers;
+using Money2Word.Services.Interfaces;
 using Moq;
-using AKQA.Money2Word.Models;
+using Money2Word.Models;
 
-namespace AKQA.Money2Word.Tests.Controllers
+namespace Money2Word.Tests.Controllers
 {
     [TestClass]
     public class DefaultControllerTest

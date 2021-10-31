@@ -1,4 +1,4 @@
-﻿namespace AKQA.Money2Word.Models
+﻿namespace Money2Word.Models
 {
     public class ResponseModel : IResponseModel
     {

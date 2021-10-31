@@ -1,8 +1,8 @@
-﻿using AKQA.Money2Word.Models;
-using AKQA.Money2Word.Services.Interfaces;
+﻿using Money2Word.Models;
+using Money2Word.Services.Interfaces;
 using System.Web.Http;
 
-namespace AKQA.Money2Word.Controllers
+namespace Money2Word.Controllers
 {
 
     public class DefaultController : ApiController

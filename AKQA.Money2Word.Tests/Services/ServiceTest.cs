@@ -1,6 +1,6 @@
-﻿using AKQA.Money2Word.Models;
-using AKQA.Money2Word.Services;
-using AKQA.Money2Word.Services.Interfaces;
+﻿using Money2Word.Models;
+using Money2Word.Services;
+using Money2Word.Services.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AKQA.Money2Word.Tests.Services
+namespace Money2Word.Tests.Services
 {
     [TestClass]
     public class ServiceTest
