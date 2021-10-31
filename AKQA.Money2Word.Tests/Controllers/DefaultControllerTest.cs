@@ -9,13 +9,13 @@ namespace Money2Word.Tests.Controllers
     [TestClass]
     public class DefaultControllerTest
     {
-        DefaultController sut;
+        ApisController sut;
         Mock<IService> service;
 
         public DefaultControllerTest()
         {
             service = new Mock<IService>();
-            sut = new DefaultController(service.Object);
+            sut = new ApisController(service.Object);
         }
 
         [TestMethod]

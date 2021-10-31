@@ -1,14 +1,14 @@
 ﻿using Money2Word.Models;
 using Money2Word.Services.Interfaces;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace Money2Word.Controllers
 {
-
-    public class DefaultController : ApiController
+    public class ApisController : ApiController
     {
         private readonly IService service;
-        public DefaultController(IService service)
+        public ApisController(IService service)
         {
             this.service = service;
         }
