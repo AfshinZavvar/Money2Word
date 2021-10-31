@@ -22,12 +22,11 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore
 
-      - name: Publish to folder
+      - name: Build main project
         working-directory: ./money2word
-        run: msbuild /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
-        with:
-          name: ASP-app
-          path: '/published/**'
+        run: msbuild /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder
+        
+      - name: Build tests project
+        working-directory: ./Money2Word.Tests
+        run: msbuild /t:Build     
+   
