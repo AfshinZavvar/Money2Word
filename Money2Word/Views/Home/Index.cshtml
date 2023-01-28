@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewData["Title"] = "Home Page";
+}
+@Html.AntiForgeryToken()
+<div class="row d-flex justify-content-center">
+    <div class="col-md-6">
+    <div class="card" style="width: 50rem;">
+        <div class="card-header">Enter a valid input</div>
+        <div class="card-body">
+        <div class="form-group">
+            <label for="amount">Enter money:</label>
+            <input type="number" id="Amount" value="" placeholder="123.45" max="999.99" min="0.0" />
+            <br />
+            <small id="help" class="form-text text-muted">number should be between 0 and 999.99</small>
+        </div>
+        <br/><br/>
+        <div class=row d-flex justify-content-lg-center>
+                <button id="btnSubmit" type="button" class="btn btn-info">Submit</button>
+        </div>
+        <br />
+        <div class="form-group">
+                <div id="resopnseAmount" class="text-info">resopnseAmount</div>
+                <div id="responseError" class="text-danger">responseError</div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
