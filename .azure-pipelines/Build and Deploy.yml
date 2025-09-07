@@ -6,7 +6,7 @@ pool:
 
 stages:
 - stage: Build
-  displayname: "CI Build"
+  displayname: 'CI Build'
   jobs:
   - job: BuildJob
     displayname: "Restore, Build, Test"
@@ -18,7 +18,7 @@ stages:
         buildConfiguration: 'Release'
 
 - stage: Deploy
-  displayname: "Deploy To azure app service"
+  displayname: 'Deploy'
   dependsOn: Build
   jobs:
   - deployment: DeployToAppService

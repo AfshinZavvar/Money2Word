@@ -6,7 +6,7 @@ pool:
 
 stages:
 - stage: Build
-  displayname: "CI Build"
+  displayName: 'CI Build'
   jobs:
   - job: BuildJob
     steps:
