@@ -1,17 +1,23 @@
 trigger:
 - '*'
-
 pool:
   vmImage: 'windows-latest'
 
 stages:
 - stage: Build
-  displayName: 'CI Build'
+  displayName: 'Build'
   jobs:
   - job: BuildJob
+    displayName: 'Build & Publish Artifact'
     steps:
+    - checkout: self
+      displayName: 'Checkout repository'
     - template: build-template.yml
       parameters:
-        solution: 'Money2WordCore.sln'
-        buildPlatform: 'Any CPU'
-        buildConfiguration: 'Release'
+        dotnetSdkVersion: '9.0.x'          # change if needed
+        projects: '**/*.csproj'            
+        configuration: 'Release'
+        testProjects: '**/*Tests/*.csproj' # set to '' to skip tests
+        publishFolder: '$(Build.ArtifactStagingDirectory)/publish'
+        artifactName: 'drop'
+        zipName: 'Money2Word.zip'

@@ -1,48 +1,80 @@
 parameters:
-- name: solution
-  type: string
-  default: '**/*.sln'
-- name: buildPlatform
-  type: string
-  default: 'Any CPU'
-- name: buildConfiguration
-  type: string
-  default: 'Release'
+  # Build settings
+  projects: '**/*.csproj'
+  configuration: 'Release'
+
+  # Tests (set to '' to skip tests)
+  testProjects: '**/*Tests/*.csproj'
+
+  # Paths / names
+  publishFolder: '$(Build.ArtifactStagingDirectory)/publish'
+  artifactName: 'drop'
+  zipName: 'Money2Word.zip'   
 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+# Restore
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
   inputs:
     command: 'restore'
-    restoreSolution: ${{ parameters.solution }}
+    projects: '${{ parameters.projects }}'
 
-- task: VSBuild@1
+# Build
+- task: DotNetCoreCLI@2
+  displayName: 'Build (${{ parameters.configuration }})'
   inputs:
-    solution: ${{ parameters.solution }}
-    msbuildArgs: >
-      /p:DeployOnBuild=true
-      /p:WebPublishMethod=Package
-      /p:PackageAsSingleFile=true
-      /p:SkipInvalidConfigurations=true
-      /p:PackageLocation="$(Build.ArtifactStagingDirectory)"
-    platform: ${{ parameters.buildPlatform }}
-    configuration: ${{ parameters.buildConfiguration }}
-    clean: true
+    command: 'build'
+    projects: '${{ parameters.projects }}'
+    arguments: '--configuration ${{ parameters.configuration }} --no-restore'
 
-- task: VSTest@2
+# Test (skipped if no pattern provided)
+- ${{ if ne(parameters.testProjects, '') }}:
+  - task: DotNetCoreCLI@2
+    displayName: 'Run tests'
+    inputs:
+      command: 'test'
+      projects: '${{ parameters.testProjects }}'
+      arguments: '--configuration ${{ parameters.configuration }} --no-build --logger trx'
+      publishTestResults: true
+
+# Clean staging (so we only end up with one zip)
+- task: PowerShell@2
+  displayName: 'Clean artifact staging directory'
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    platform: ${{ parameters.buildPlatform }}
-    configuration: ${{ parameters.buildConfiguration }}
+    targetType: 'inline'
+    script: |
+      Write-Host "Cleaning $(Build.ArtifactStagingDirectory)"
+      if (Test-Path '$(Build.ArtifactStagingDirectory)') {
+        Get-ChildItem '$(Build.ArtifactStagingDirectory)' -Recurse -Force | Remove-Item -Recurse -Force
+      }
 
+# Publish site files 
+- task: DotNetCoreCLI@2
+  displayName: 'Publish to $(Build.ArtifactStagingDirectory)/publish'
+  inputs:
+    command: 'publish'
+    projects: '${{ parameters.projects }}'
+    arguments: >
+      --configuration ${{ parameters.configuration }}
+      --output "${{ parameters.publishFolder }}"
+    publishWebProjects: false
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+# Zip the published output (Kudu Zip Deploy expects a flat site zip)
+- task: ArchiveFiles@2
+  displayName: 'Create deployable zip (${{ parameters.zipName }})'
+  inputs:
+    rootFolderOrFile: '${{ parameters.publishFolder }}'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.zipName }}'
+    replaceExistingArchive: true
+
+# Publish artifact (contains exactly one file: the zip above)
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish artifact: ${{ parameters.artifactName }}'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
+    ArtifactName: '${{ parameters.artifactName }}'
     publishLocation: 'Container'
