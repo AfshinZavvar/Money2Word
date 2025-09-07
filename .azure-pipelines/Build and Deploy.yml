@@ -6,10 +6,8 @@ pool:
 
 stages:
 - stage: Build
-  displayname: 'CI Build'
   jobs:
   - job: BuildJob
-    displayname: "Restore, Build, Test"
     steps:
     - template: build-template.yml
       parameters:
@@ -18,7 +16,6 @@ stages:
         buildConfiguration: 'Release'
 
 - stage: Deploy
-  displayname: 'Deploy'
   dependsOn: Build
   jobs:
   - deployment: DeployToAppService
