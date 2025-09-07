@@ -48,13 +48,12 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: 30f35852-3f7e-4c0c-9a88-e127b4f97211@1
+          - task: AzureRmWebAppDeployment@5
             inputs:
-              alias: current
-              artifact: drop
-          - task: AzureWebApp@1
-            inputs:
+              ConnectionType: 'AzureRM'
               azureSubscription: 'Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)'
-              appName: 'Money2Word'
-              package: '$(Pipeline.Workspace)/drop/**/*.zip'
+              appType: 'webApp'
+              WebAppName: 'Money2Word'
+              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+
 
