@@ -1,0 +1,40 @@
+parameters:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: ${{ parameters.solution }}
+
+- task: VSBuild@1
+  inputs:
+    solution: ${{ parameters.solution }}
+    msbuildArgs: >
+      /p:DeployOnBuild=true
+      /p:WebPublishMethod=Package
+      /p:PackageAsSingleFile=true
+      /p:SkipInvalidConfigurations=true
+      /p:PackageLocation="$(Build.ArtifactStagingDirectory)"
+    platform: ${{ parameters.buildPlatform }}
+    configuration: ${{ parameters.buildConfiguration }}
+    clean: true
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    platform: ${{ parameters.buildPlatform }}
+    configuration: ${{ parameters.buildConfiguration }}
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
