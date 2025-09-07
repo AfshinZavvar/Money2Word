@@ -5,10 +5,15 @@ pool:
 
 stages:
 - stage: Build
+  displayName: Build
   jobs:
-  - job: BuildAndPublish
+  - job: BuildJob
+    displayName: Build & Publish
     steps:
-    - template: build-template.yml
+    - template: templates/build-steps.yml
+      parameters:
+        solution: '**/*.sln'
+        configuration: 'Release'
 
 - stage: Deploy
   displayName: Deploy To Azure
