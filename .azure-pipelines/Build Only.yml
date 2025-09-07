@@ -12,6 +12,6 @@ stages:
     steps:
     - template: build-template.yml
       parameters:
-        solution: 'money2word.sln'
+        solution: 'Money2WordCore.sln'
         buildPlatform: 'Any CPU'
         buildConfiguration: 'Release'
