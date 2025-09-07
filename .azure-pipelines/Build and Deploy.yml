@@ -1,5 +1,4 @@
-trigger:
-- develop
+trigger: none 
 
 pool:
   vmImage: windows-latest
@@ -9,7 +8,7 @@ stages:
   jobs:
   - job: BuildAndPublish
     steps:
-    - template: Build Only.yml
+    - template: build-template.yml
 
 - stage: Deploy
   displayName: Deploy To Azure

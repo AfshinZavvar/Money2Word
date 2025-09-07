@@ -1,52 +1,26 @@
+# Full pipeline (CAN have trigger/pool/stages)
+name: Build-Only-$(Date:yyyyMMdd)$(Rev:.r)
+
 trigger:
-- '*'
+  branches:
+    include:
+      - develop
+pr:
+  branches:
+    include:
+      - develop
+
 pool:
   vmImage: 'windows-latest'
 
 stages:
 - stage: Build
-  displayName: 'Build'
+  displayName: Build
   jobs:
   - job: BuildJob
-    displayName: 'Build & Publish Artifact'
+    displayName: Build & Publish
     steps:
-    - task: NuGetToolInstaller@1
-      displayName: 'Nuget Install'
-    - task: NuGetCommand@2
-      displayName: 'Nuget Restore'
-      inputs:
-        command: 'restore'
-        restoreSolution: Money2WordCore.sln
-
-    - task: VSBuild@1
-      displayName: 'Build Solution'
-      inputs:
-        solution: Money2WordCore.sln
-        msbuildArgs: >
-          /p:DeployOnBuild=true
-          /p:WebPublishMethod=Package
-          /p:PackageAsSingleFile=true
-          /p:SkipInvalidConfigurations=true
-          /p:PackageLocation="$(Build.ArtifactStagingDirectory)\Money2Word.zip"
-        platform: 'Any CPU'
+    - template: templates/build-template.yml
+      parameters:
+        solution: '**/*.sln'
         configuration: 'Release'
-        clean: true
-
-    - task: VSTest@2
-      displayName: 'Run Tests'
-      inputs:
-        testSelector: 'testAssemblies'
-        testAssemblyVer2: |
-          **\*test*.dll
-          !**\*TestAdapter.dll
-          !**\obj\**
-        searchFolder: '$(System.DefaultWorkingDirectory)'
-        platform: 'Any CPU'
-        configuration: 'Release'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artificats'
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'

@@ -1,0 +1,39 @@
+# Reusable build steps (NO trigger/pool/stages here)
+parameters:
+  solution: '**/*.sln'
+  configuration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+  displayName: NuGet Tool
+
+- task: NuGetCommand@2
+  displayName: Restore packages
+  inputs:
+    command: 'restore'
+    restoreSolution: ${{ parameters.solution }}
+
+- task: VSBuild@1
+  displayName: Build solution
+  inputs:
+    solution: ${{ parameters.solution }}
+    msbuildArgs: '/p:DeployOnBuild=false'
+    configuration: ${{ parameters.configuration }}
+    platform: 'Any CPU'
+
+- task: VSTest@2
+  displayName: Test
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish artifacts
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
