@@ -11,7 +11,7 @@ stages:
   - job: BuildJob
     displayname: "Restore, Build, Test"
     steps:
-    - template: .azure-pipelines/build-template.yml
+    - template: build-template.yml
       parameters:
         solution: '$(Build.SourcesDirectory)/money2word.sln'
         buildPlatform: 'Any CPU'
