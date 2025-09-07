@@ -1,27 +1,36 @@
 trigger:
   branches:
     include:
-    - develop
+      - develop
+
 pool:
   vmImage: 'windows-latest'
+
 stages:
 - stage: Build
   jobs:
   - job: BuildJob
     steps:
     - task: NuGetToolInstaller@1
+
     - task: NuGetCommand@2
       inputs:
         command: 'restore'
         restoreSolution: Money2WordCore.sln
+
     - task: VSBuild@1
       inputs:
         solution: Money2WordCore.sln
         msbuildArgs: >
-          /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.ArtifactStagingDirectory)"
-        platform: Any CPU
-        configuration: Release
+          /p:DeployOnBuild=true
+          /p:WebPublishMethod=Package
+          /p:PackageAsSingleFile=true
+          /p:SkipInvalidConfigurations=true
+          /p:PackageLocation="$(Build.ArtifactStagingDirectory)\Money2Word.zip"
+        platform: 'Any CPU'
+        configuration: 'Release'
         clean: true
+
     - task: VSTest@2
       inputs:
         testSelector: 'testAssemblies'
@@ -30,16 +39,18 @@ stages:
           !**\*TestAdapter.dll
           !**\obj\**
         searchFolder: '$(System.DefaultWorkingDirectory)'
-        platform: Any CPU
-        configuration: Release
+        platform: 'Any CPU'
+        configuration: 'Release'
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
+
 - stage: Deploy
   dependsOn:
-  - Build
+    - Build
   jobs:
   - deployment: DeployToAppService
     environment:
@@ -48,12 +59,18 @@ stages:
       runOnce:
         deploy:
           steps:
+          # 1) Download the artifact produced in the Build stage
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'drop'
+              path: '$(Pipeline.Workspace)'
+
+          # 2) Deploy from the downloaded artifact path
           - task: AzureRmWebAppDeployment@5
             inputs:
               ConnectionType: 'AzureRM'
               azureSubscription: 'Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)'
-              appType: 'webApp'
+              appType: 'webApp'                 # Windows Web App
               WebAppName: 'Money2Word'
-              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
-
-
+              package: '$(Pipeline.Workspace)/drop/Money2Word.zip'
+              # ^ use 'package' (Windows). 'packageForLinux' is only for Linux apps
