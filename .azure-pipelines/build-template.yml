@@ -6,10 +6,12 @@ parameters:
 steps:
 - task: NuGetToolInstaller@1
 - task: NuGetCommand@2
+  displayname: "Nuget Restore"
   inputs:
     restoreSolution: ${{ parameters.solution }}
 
 - task: VSBuild@1
+  displayname: "Build"
   inputs:
     solution: ${{ parameters.solution }}
     msbuildArgs: >
@@ -23,6 +25,7 @@ steps:
     clean: true
 
 - task: VSTest@2
+  displayname: "Test"
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: |
@@ -34,6 +37,7 @@ steps:
     configuration: ${{ parameters.buildConfiguration }}
 
 - task: PublishBuildArtifacts@1
+  displayname: "Publish"
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'

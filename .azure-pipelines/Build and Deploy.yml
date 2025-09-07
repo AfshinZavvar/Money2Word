@@ -6,16 +6,19 @@ pool:
 
 stages:
 - stage: Build
+  displayname: "CI Build"
   jobs:
   - job: BuildJob
+    displayname: "Restore, Build, Test"
     steps:
     - template: .azure-pipelines/build-template.yml
       parameters:
-        solution: 'Money2Word.sln'
+        solution: '$(Build.SourcesDirectory)/money2word.sln'
         buildPlatform: 'Any CPU'
         buildConfiguration: 'Release'
 
 - stage: Deploy
+  displayname: "Deploy To azure app service"
   dependsOn: Build
   jobs:
   - deployment: DeployToAppService

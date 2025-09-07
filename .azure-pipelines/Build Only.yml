@@ -6,11 +6,12 @@ pool:
 
 stages:
 - stage: Build
+  displayname: "CI Build"
   jobs:
   - job: BuildJob
     steps:
     - template: .azure-pipelines/build-template.yml
       parameters:
-        solution: 'Money2Word.sln'
+        solution: '$(Build.SourcesDirectory)/money2word.sln'
         buildPlatform: 'Any CPU'
         buildConfiguration: 'Release'
