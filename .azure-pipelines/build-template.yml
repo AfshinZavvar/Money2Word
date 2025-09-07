@@ -17,9 +17,15 @@ steps:
   displayName: Build solution
   inputs:
     solution: ${{ parameters.solution }}
-    msbuildArgs: '/p:DeployOnBuild=false'
     configuration: ${{ parameters.configuration }}
+    msbuildArgs: >
+      /p:DeployOnBuild=true
+      /p:WebPublishMethod=Package
+      /p:PackageAsSingleFile=true
+      /p:SkipInvalidConfigurations=true
+      /p:PackageLocation="$(Build.ArtifactStagingDirectory)\Money2Word.zip"
     platform: 'Any CPU'
+    configuration: 'Release'
 
 - task: VSTest@2
   displayName: Test
@@ -34,6 +40,7 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: Publish artifacts
   inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+
