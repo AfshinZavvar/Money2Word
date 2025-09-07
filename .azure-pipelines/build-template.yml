@@ -25,7 +25,6 @@ steps:
       /p:SkipInvalidConfigurations=true
       /p:PackageLocation="$(Build.ArtifactStagingDirectory)\Money2Word.zip"
     platform: 'Any CPU'
-    configuration: 'Release'
 
 - task: VSTest@2
   displayName: Test
