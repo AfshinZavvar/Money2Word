@@ -11,7 +11,7 @@ stages:
     displayName: 'Build & Publish Artifact'
     steps:
     - task: NuGetToolInstaller@1
-
+      displayName: 'Nuget Install'
     - task: NuGetCommand@2
       displayName: 'Nuget Restore'
       inputs:
@@ -19,7 +19,7 @@ stages:
         restoreSolution: Money2WordCore.sln
 
     - task: VSBuild@1
-      displayName: 'Build Soloution'
+      displayName: 'Build Solution'
       inputs:
         solution: Money2WordCore.sln
         msbuildArgs: >
