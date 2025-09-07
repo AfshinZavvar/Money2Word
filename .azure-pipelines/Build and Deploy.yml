@@ -10,7 +10,7 @@ stages:
   - job: BuildJob
     displayName: Build & Publish
     steps:
-    - template: templates/build-steps.yml
+    - template: templates/build-template.yml
       parameters:
         solution: '**/*.sln'
         configuration: 'Release'
