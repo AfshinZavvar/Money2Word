@@ -13,7 +13,7 @@ stages:
     steps:
     - template: build-template.yml
       parameters:
-        solution: '$(Build.SourcesDirectory)/money2word.sln'
+        solution: 'money2word.sln'
         buildPlatform: 'Any CPU'
         buildConfiguration: 'Release'
 
