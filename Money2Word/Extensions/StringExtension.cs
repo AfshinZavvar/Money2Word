@@ -1,31 +1,31 @@
 ﻿namespace Money2Word.Extensions
 {
-    public static class StringExtension
+    public static class StringExtensions
     {
-        public static string ReplaceFirstOccurrence(this string Source, string Find, string Replace)
+        public static string ReplaceFirstOccurrence(this string source, string find, string replace) =>
+            ReplaceOccurrence(source, find, replace, first: true);
+
+        public static string ReplaceLastOccurrence(this string source, string find, string replace) =>
+            ReplaceOccurrence(source, find, replace, first: false);
+
+        private static string ReplaceOccurrence(string source, string find, string replace, bool first)
         {
-            if (string.IsNullOrWhiteSpace(Source))
-                return string.Empty;
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(find))
+                return source ?? string.Empty;
 
-            int Place = Source.IndexOf(Find, StringComparison.InvariantCultureIgnoreCase);
+            var comparison = StringComparison.OrdinalIgnoreCase;
+            var index = first
+                ? source.IndexOf(find, comparison)
+                : source.LastIndexOf(find, comparison);
 
-            if (Place < 0)
-                return Source;
+            if (index < 0)
+                return source;
 
-            return Source.Remove(Place, Find.Length).Insert(Place, Replace);          
-        }
-
-        public static string ReplaceLastOccurrence(this string Source, string Find, string Replace)
-        {
-            if (string.IsNullOrWhiteSpace(Source))
-                return string.Empty;
-
-            var place = Source.LastIndexOf(Find, StringComparison.InvariantCultureIgnoreCase);
-
-            if (place < 0)
-                return Source;
-
-            return Source.Remove(place, Find.Length).Insert(place, Replace);
+            return string.Concat(
+                source.AsSpan(0, index),
+                replace,
+                source.AsSpan(index + find.Length)
+            );
         }
     }
 }

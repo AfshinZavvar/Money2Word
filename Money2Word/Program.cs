@@ -1,43 +1,41 @@
-using Money2Word.Services.Interfaces;
 using Money2Word.Services;
-using Newtonsoft.Json.Serialization;
-using Microsoft.AspNetCore.Mvc;
+using Money2Word.Services.Interfaces;
 
-namespace Money2Word
+public static class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllersWithViews().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
-            builder.Services.AddApplicationInsightsTelemetry();
-            builder.Services.AddTransient<IMoney2WordConvertor, Money2WordConvertor>();
-            builder.Services.AddTransient<IMoney2WordService, Money2WordService>();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
+        builder.Services.AddControllersWithViews()
+            .AddJsonOptions(opts =>
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+                opts.JsonSerializerOptions.PropertyNamingPolicy = null;
+                opts.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+            });
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+        builder.Services.AddTransient<IMoney2WordService, Money2WordService>();
 
-            app.UseRouting();
+        // Use config-based telemetry setup
+        builder.Services.AddApplicationInsightsTelemetry();
 
-            app.UseAuthorization();
+        var app = builder.Build();
 
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.Run();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
         }
+
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseAuthorization();
+
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        app.Run();
     }
 }
