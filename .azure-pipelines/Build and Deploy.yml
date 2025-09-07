@@ -1,0 +1,33 @@
+trigger:
+- develop
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - template: .azure-pipelines/build-template.yml
+      parameters:
+        solution: 'Money2Word.sln'
+        buildPlatform: 'Any CPU'
+        buildConfiguration: 'Release'
+
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - deployment: DeployToAppService
+    environment: 'Prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)'
+              appName: 'Money2Word'
+              package: '$(Pipeline.Workspace)/drop/**/*.zip'

@@ -1,0 +1,16 @@
+trigger:
+- '*'
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - template: .azure-pipelines/build-template.yml
+      parameters:
+        solution: 'Money2Word.sln'
+        buildPlatform: 'Any CPU'
+        buildConfiguration: 'Release'
