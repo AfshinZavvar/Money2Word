@@ -10,14 +10,43 @@ stages:
   - job: BuildJob
     displayName: 'Build & Publish Artifact'
     steps:
-    - checkout: self
-      displayName: 'Checkout repository'
-    - template: build-template.yml
-      parameters:
-        dotnetSdkVersion: '9.0.x'          # change if needed
-        projects: '**/*.csproj'            
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      displayName: 'Nuget Restore'
+      inputs:
+        command: 'restore'
+        restoreSolution: Money2WordCore.sln
+
+    - task: VSBuild@1
+      displayName: 'Build Soloution'
+      inputs:
+        solution: Money2WordCore.sln
+        msbuildArgs: >
+          /p:DeployOnBuild=true
+          /p:WebPublishMethod=Package
+          /p:PackageAsSingleFile=true
+          /p:SkipInvalidConfigurations=true
+          /p:PackageLocation="$(Build.ArtifactStagingDirectory)\Money2Word.zip"
+        platform: 'Any CPU'
         configuration: 'Release'
-        testProjects: '**/*Tests/*.csproj' # set to '' to skip tests
-        publishFolder: '$(Build.ArtifactStagingDirectory)/publish'
-        artifactName: 'drop'
-        zipName: 'Money2Word.zip'
+        clean: true
+
+    - task: VSTest@2
+      displayName: 'Run Tests'
+      inputs:
+        testSelector: 'testAssemblies'
+        testAssemblyVer2: |
+          **\*test*.dll
+          !**\*TestAdapter.dll
+          !**\obj\**
+        searchFolder: '$(System.DefaultWorkingDirectory)'
+        platform: 'Any CPU'
+        configuration: 'Release'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artificats'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
