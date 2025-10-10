@@ -14,7 +14,7 @@ public static class Program
                 opts.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
             });
 
-        builder.Services.AddTransient<IMoney2WordService, Money2WordService>();
+        builder.Services.AddScoped<IMoney2WordService, Money2WordService>();
 
         // Use config-based telemetry setup
         builder.Services.AddApplicationInsightsTelemetry();
