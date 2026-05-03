@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Money2Word.Models
+namespace Money2Word.Models;
+
+public record InputModel
 {
-    public record InputModel
-    {
-        [Required(ErrorMessage ="Amount is not valid")]
-        public decimal Amount { get; set; }
-    }
+    [Required(ErrorMessage = "Amount is required")]
+    [Range(0.01, 999_999_999_999_999.99,
+        ErrorMessage = "Amount must be between 0.01 and 999,999,999,999,999.99")]
+    public decimal Amount { get; init; }
 }

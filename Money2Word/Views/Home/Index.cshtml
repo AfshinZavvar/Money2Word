@@ -1,36 +1,40 @@
-﻿@{
+@{
     ViewData["Title"] = "Money to Words Converter";
 }
-@Html.AntiForgeryToken()
+<div class="converter-wrapper">
+    <div class="glass-card">
 
-<div class="container py-5">
-    <div class="row d-flex justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    💰 Money to Words Converter
-                </div>
-                <div class="card-body p-4">
-                    <div class="form-group mb-4">
-                        <label for="Amount">Enter Money Amount:</label>
-                        <input type="text" id="Amount" placeholder="e.g. 1,234.56" />
-                        <small id="help" class="form-text text-muted">
-                            Enter any positive amount (supports large numbers with 2 decimal places)
-                        </small>
-                    </div>
-
-                    <div class="text-center">
-                        <button id="btnSubmit" type="button" class="btn btn-luxury">
-                            Convert
-                        </button>
-                    </div>
-
-                    <div class="form-group mt-4">
-                        <div id="resopnseAmount"></div>
-                        <div id="responseError"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="card-header-area">
+            <div class="card-icon">💰</div>
+            <h1 class="card-title">Money to Words</h1>
+            <p class="card-subtitle">Instantly convert any amount to English words</p>
         </div>
+
+        <div class="form-section">
+            <label class="input-label" for="Amount">Amount</label>
+            <div class="input-group-custom">
+                <span class="currency-prefix" aria-hidden="true">$</span>
+                <input type="text" id="Amount" placeholder="1,234.56" autocomplete="off"
+                       aria-describedby="help responseError" />
+            </div>
+            <small id="help" class="help-text">
+                Between $0.01 and $999,999,999,999,999.99 &mdash; up to 2 decimal places
+            </small>
+        </div>
+
+        <button id="btnSubmit" type="button" class="btn-convert" aria-label="Convert amount to words">
+            <span class="btn-text">Convert</span>
+        </button>
+
+        <div id="resultPanel" class="result-panel" style="display:none">
+            <div class="result-divider"></div>
+            <div class="result-header"><span aria-hidden="true">&#10022;</span> Result</div>
+            <div id="responseAmount" class="result-text"
+                 aria-live="polite" role="status"></div>
+        </div>
+
+        <div id="responseError" class="error-message"
+             aria-live="assertive" role="alert"></div>
+
     </div>
 </div>

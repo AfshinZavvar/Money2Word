@@ -1,20 +1,73 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Money2Word
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Converts monetary decimal amounts to English words. Supports amounts from $0.01 up to $999,999,999,999,999.99.
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Prerequisites
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## Running Locally
+
+```bash
+dotnet run --project Money2Word --launch-profile https
+```
+
+- **Web UI:** https://localhost:7220
+- **Swagger (dev only):** https://localhost:7220/swagger
+
+## Running Tests
+
+```bash
+dotnet test
+```
+
+## Running E2E Tests
+
+One-time browser install (run after first build):
+
+```powershell
+pwsh Money2Word.E2ETests/bin/Debug/net10.0/playwright.ps1 install chromium
+```
+
+Run E2E tests only (headless Chromium, ~17s):
+
+```bash
+dotnet test Money2Word.E2ETests
+```
+
+## API
+
+```
+POST /api/show
+Content-Type: application/json
+
+{ "Amount": 1234.56 }
+```
+
+**Success response (200):**
+```json
+{ "Words": "ONE THOUSAND TWO HUNDRED AND THIRTY-FOUR DOLLARS AND FIFTY-SIX CENTS" }
+```
+
+**Error response (400) — RFC 7807:**
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc7807",
+  "title": "Conversion failed",
+  "status": 400,
+  "detail": "Amount exceeds the maximum supported value of 999,999,999,999,999.99"
+}
+```
+
+## Architecture
+
+- **`Money2Word/Services/IMoney2WordService`** — core conversion contract; accepts `decimal`, returns `ConversionResult`
+- **`Money2Word/Models/ConversionResult`** — discriminated result type; `IsSuccess` / `Words` / `ErrorMessage`
+- **`Money2Word/Controllers/ApiController`** — REST endpoint at `POST /api/show`; returns RFC 7807 errors
+- **`Money2Word/Controllers/HomeController`** — serves the glassmorphism dark UI (jQuery AJAX, no Bootstrap)
+- **`Money2Word.Tests/`** — 32 unit tests with FluentAssertions and NSubstitute
+- **`Money2Word.E2ETests/`** — 12 Playwright E2E tests using headless Chromium against a real Kestrel server
+
+## Deployment
+
+Azure DevOps pipelines are in `.azure-pipelines/`. The app deploys to the Azure App Service **Money2Word** via `Build and Deploy.yml`.

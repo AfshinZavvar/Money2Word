@@ -1,0 +1,58 @@
+# Reusable build steps (NO trigger/pool/stages here)
+parameters:
+  solution: '**/*.sln'
+  configuration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  displayName: Install .NET SDK
+  inputs:
+    useGlobalJson: true
+
+- task: DotNetCoreCLI@2
+  displayName: Restore packages
+  inputs:
+    command: restore
+    projects: ${{ parameters.solution }}
+
+- task: DotNetCoreCLI@2
+  displayName: Build solution
+  inputs:
+    command: build
+    projects: ${{ parameters.solution }}
+    arguments: '--configuration ${{ parameters.configuration }} --no-restore'
+
+- task: DotNetCoreCLI@2
+  displayName: Test (unit tests)
+  inputs:
+    command: test
+    projects: '**/*.Tests.csproj'
+    arguments: '--configuration ${{ parameters.configuration }} --no-build'
+
+- task: PowerShell@2
+  displayName: Install Playwright browsers (Chromium)
+  inputs:
+    targetType: inline
+    script: |
+      pwsh $(Build.SourcesDirectory)/Money2Word.E2ETests/bin/${{ parameters.configuration }}/net10.0/playwright.ps1 install chromium --with-deps
+
+- task: DotNetCoreCLI@2
+  displayName: Test (E2E tests)
+  inputs:
+    command: test
+    projects: '**/*.E2ETests.csproj'
+    arguments: '--configuration ${{ parameters.configuration }} --no-build'
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: true
+    arguments: '--configuration ${{ parameters.configuration }} --no-build --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+- task: PublishPipelineArtifact@1
+  displayName: Publish artifacts
+  inputs:
+    targetPath: $(Build.ArtifactStagingDirectory)
+    artifact: drop
