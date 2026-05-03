@@ -1,0 +1,41 @@
+# Build outputs — never needed in the Docker build context
+**/bin/
+**/obj/
+
+# IDE / editor artefacts
+**/.vs/
+**/*.user
+**/*.suo
+**/*.DotSettings.user
+
+# Version control
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# Node (not used here, but guard against accidental future addition)
+**/node_modules/
+
+# Docker files themselves (no recursive copy needed)
+**/Dockerfile*
+.dockerignore
+
+# Documentation
+README.md
+*.md
+Screenshot.png
+
+# Environment secret templates — real .env files are gitignored anyway
+.env
+.env.*
+!.env.example
+
+# Test project and test results — not needed to build the app
+Money2Word.Tests/
+TestResults/
+
+# Azure DevOps pipeline definitions — not needed at runtime
+.azure-pipelines/
+
+# Changesets
+.changeset/

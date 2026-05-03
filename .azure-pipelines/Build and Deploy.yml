@@ -1,4 +1,7 @@
-trigger: none 
+trigger: none
+
+variables:
+  azureSubscription: 'Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)'
 
 pool:
   vmImage: windows-latest
@@ -30,12 +33,11 @@ stages:
           - task: DownloadPipelineArtifact@2
             inputs:
               artifact: drop
-              path: $(Pipeline.Workspace)
 
           - task: AzureRmWebAppDeployment@5
             inputs:
               ConnectionType: AzureRM
-              azureSubscription: Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)
+              azureSubscription: $(azureSubscription)
               appType: webApp
               WebAppName: Money2Word
-              package: $(Pipeline.Workspace)/drop/Money2Word.zip
+              package: $(Pipeline.Workspace)/drop/*.zip

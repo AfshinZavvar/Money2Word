@@ -4,42 +4,55 @@ parameters:
   configuration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@1
-  displayName: NuGet Tool
+- task: UseDotNet@2
+  displayName: Install .NET SDK
+  inputs:
+    useGlobalJson: true
 
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   displayName: Restore packages
   inputs:
-    command: 'restore'
-    restoreSolution: ${{ parameters.solution }}
+    command: restore
+    projects: ${{ parameters.solution }}
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
   displayName: Build solution
   inputs:
-    solution: ${{ parameters.solution }}
-    configuration: ${{ parameters.configuration }}
-    msbuildArgs: >
-      /p:DeployOnBuild=true
-      /p:WebPublishMethod=Package
-      /p:PackageAsSingleFile=true
-      /p:SkipInvalidConfigurations=true
-      /p:PackageLocation="$(Build.ArtifactStagingDirectory)\Money2Word.zip"
-    platform: 'Any CPU'
+    command: build
+    projects: ${{ parameters.solution }}
+    arguments: '--configuration ${{ parameters.configuration }} --no-restore'
 
-- task: VSTest@2
-  displayName: Test
+- task: DotNetCoreCLI@2
+  displayName: Test (unit tests)
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
+    command: test
+    projects: '**/*.Tests.csproj'
+    arguments: '--configuration ${{ parameters.configuration }} --no-build'
 
-- task: PublishBuildArtifacts@1
+- task: PowerShell@2
+  displayName: Install Playwright browsers (Chromium)
+  inputs:
+    targetType: inline
+    script: |
+      pwsh $(Build.SourcesDirectory)/Money2Word.E2ETests/bin/${{ parameters.configuration }}/net10.0/playwright.ps1 install chromium --with-deps
+
+- task: DotNetCoreCLI@2
+  displayName: Test (E2E tests)
+  inputs:
+    command: test
+    projects: '**/*.E2ETests.csproj'
+    arguments: '--configuration ${{ parameters.configuration }} --no-build'
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: true
+    arguments: '--configuration ${{ parameters.configuration }} --no-build --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+- task: PublishPipelineArtifact@1
   displayName: Publish artifacts
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
-
+    targetPath: $(Build.ArtifactStagingDirectory)
+    artifact: drop

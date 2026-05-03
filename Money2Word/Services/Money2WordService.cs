@@ -1,72 +1,63 @@
-﻿using Money2Word.Models;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Money2Word.Models;
 using Money2Word.Services.Interfaces;
+using System.Collections.Frozen;
 using System.Text;
 
-namespace Money2Word.Services
+namespace Money2Word.Services;
+
+public class Money2WordService(ILogger<Money2WordService> logger, TelemetryClient telemetryClient) : IMoney2WordService
 {
-    public class Money2WordService(ILogger<Money2WordService> logger) : IMoney2WordService
+    private const decimal MaxSupportedAmount = 999_999_999_999_999.99m;
+
+    // FrozenDictionary is read-optimised: no lock overhead, perfect-hash lookup
+    private static readonly FrozenDictionary<int, string> Ones = new Dictionary<int, string>
     {
-        private readonly ILogger<Money2WordService> _logger = logger;
+        [0] = "Zero", [1] = "One",   [2] = "Two",   [3] = "Three", [4] = "Four",
+        [5] = "Five",  [6] = "Six",   [7] = "Seven", [8] = "Eight", [9] = "Nine"
+    }.ToFrozenDictionary();
 
-        private static readonly Dictionary<int, string> Ones = new()
+    private static readonly FrozenDictionary<int, string> Tens = new Dictionary<int, string>
+    {
+        [10] = "Ten",     [11] = "Eleven",    [12] = "Twelve",    [13] = "Thirteen",
+        [14] = "Fourteen",[15] = "Fifteen",   [16] = "Sixteen",   [17] = "Seventeen",
+        [18] = "Eighteen",[19] = "Nineteen",  [20] = "Twenty",    [30] = "Thirty",
+        [40] = "Forty",   [50] = "Fifty",     [60] = "Sixty",     [70] = "Seventy",
+        [80] = "Eighty",  [90] = "Ninety"
+    }.ToFrozenDictionary();
+
+    // Indexed 0–4: units, thousands, millions, billions, trillions
+    private static readonly string[] Scales = ["", " Thousand", " Million", " Billion", " Trillion"];
+
+        public ConversionResult Convert(decimal amount)
         {
-            [0] = "Zero",
-            [1] = "One",
-            [2] = "Two",
-            [3] = "Three",
-            [4] = "Four",
-            [5] = "Five",
-            [6] = "Six",
-            [7] = "Seven",
-            [8] = "Eight",
-            [9] = "Nine"
-        };
+            logger.LogInformation("Convert called with Amount: {Amount}", amount);
 
-        private static readonly Dictionary<int, string> Tens = new()
-        {
-            [10] = "Ten",
-            [11] = "Eleven",
-            [12] = "Twelve",
-            [13] = "Thirteen",
-            [14] = "Fourteen",
-            [15] = "Fifteen",
-            [16] = "Sixteen",
-            [17] = "Seventeen",
-            [18] = "Eighteen",
-            [19] = "Nineteen",
-            [20] = "Twenty",
-            [30] = "Thirty",
-            [40] = "Forty",
-            [50] = "Fifty",
-            [60] = "Sixty",
-            [70] = "Seventy",
-            [80] = "Eighty",
-            [90] = "Ninety"
-        };
+            if (amount < 0)
+                amount = Math.Abs(amount);
 
-        private static readonly string[] Scales = ["", " Thousand", " Million", " Billion", " Trillion"];
-
-        public ResponseModel Convert(InputModel model)
-        {
-            _logger.LogInformation("Convert method called with Amount: {Amount}", model.Amount);
+            if (amount > MaxSupportedAmount)
+            {
+                logger.LogWarning("Amount {Amount} exceeds maximum supported value", amount);
+                return ConversionResult.Failure(
+                    $"Amount exceeds the maximum supported value of {MaxSupportedAmount:N2}");
+            }
 
             try
             {
-                var amount = Math.Abs(model.Amount);
                 var dollars = (long)Math.Truncate(amount);
-                var cents = (int)((amount - dollars) * 100);
+                // Stay in decimal arithmetic to avoid floating-point precision loss
+                var cents = (int)Math.Round((amount - dollars) * 100m, MidpointRounding.AwayFromZero);
 
-                _logger.LogDebug("Parsed dollars: {Dollars}, cents: {Cents}", dollars, cents);
+                logger.LogDebug("Parsed dollars: {Dollars}, cents: {Cents}", dollars, cents);
 
                 var sb = new StringBuilder();
                 if (dollars == 0)
-                {
                     sb.Append(Ones[0]);
-                }
                 else
-                {
                     WordifyLarge(dollars, sb);
-                }
+
                 sb.Append(dollars == 1 ? " Dollar" : " Dollars");
 
                 if (cents > 0)
@@ -78,14 +69,20 @@ namespace Money2Word.Services
 
                 var result = sb.ToString().ToUpperInvariant();
 
-                _logger.LogInformation("Conversion successful: {Result}", result);
+                logger.LogInformation("Conversion successful: {Result}", result);
 
-                return new ResponseModel { Amount = result };
+                telemetryClient.TrackEvent("AmountConverted", new Dictionary<string, string>
+                {
+                    ["DollarAmount"] = dollars.ToString(),
+                    ["HasCents"]     = (cents > 0).ToString()
+                });
+
+                return ConversionResult.Success(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred during money-to-word conversion");
-                return new ResponseModel { ErrorMessage = ex.Message };
+                logger.LogError(ex, "Unexpected error during conversion");
+                return ConversionResult.Failure("An unexpected error occurred during conversion.");
             }
         }
 
@@ -93,7 +90,8 @@ namespace Money2Word.Services
         {
             if (number == 0) return;
 
-            var parts = new List<string>();
+            // Stack naturally reverses insertion order (LIFO), avoiding O(n²) List.Insert(0,...)
+            var parts = new Stack<string>();
             int scaleIndex = 0;
 
             while (number > 0)
@@ -104,7 +102,7 @@ namespace Money2Word.Services
                     var chunkBuilder = new StringBuilder();
                     Wordify(chunk, chunkBuilder);
                     chunkBuilder.Append(Scales[scaleIndex]);
-                    parts.Insert(0, chunkBuilder.ToString());
+                    parts.Push(chunkBuilder.ToString());
                 }
                 number /= 1000;
                 scaleIndex++;
@@ -128,7 +126,7 @@ namespace Money2Word.Services
                 else
                 {
                     sb.Append(Tens[number / 10 * 10]);
-                    sb.Append("-");
+                    sb.Append('-');
                     sb.Append(Ones[number % 10]);
                 }
             }
@@ -144,4 +142,3 @@ namespace Money2Word.Services
             }
         }
     }
-}
