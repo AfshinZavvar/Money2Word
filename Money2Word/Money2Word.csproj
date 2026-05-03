@@ -1,19 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
     <ApplicationInsightsResourceId>/subscriptions/c1e427eb-9653-40f1-b269-7623cab18fb1/resourceGroups/Money2Word/providers/microsoft.insights/components/Money2Word</ApplicationInsightsResourceId>
     <UserSecretsId>c781ab72-9cf1-40f9-98da-391b2c5e0ebb</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="Build">
-     <Message Text=">>> Running before build..." Importance="high" />
-  </Target>
 </Project>
