@@ -138,7 +138,7 @@ dotnet test Money2Word.E2ETests   # headless, ~17s
 ## CI/CD
 
 Azure DevOps pipelines are in `.azure-pipelines/`:
-- **Build and Deploy.yml** — manually triggered; builds then deploys to Azure App Service "Money2Word" via the `Prod` environment gate
+- **Build and Deploy.yml** — manually triggered; builds then deploys to Azure App Service "Money2Word" via the `Prod` environment gate using `AzureRmWebAppDeployment@5` with `deploymentMethod: runFromPackage` (sets `WEBSITE_RUN_FROM_PACKAGE=1` and uploads to `/home/data/SitePackages` via OneDeploy — do **not** change to `zipDeploy` or MSDeploy as both conflict with this setting and cause 500/503 errors)
 - **Build Only.yml** — CI pipeline; triggers on push and PRs targeting `main` or `develop`
 - **build-template.yml** — shared build steps: `UseDotNet@2` (reads `global.json`) → `DotNetCoreCLI@2 restore` → `DotNetCoreCLI@2 build` → `DotNetCoreCLI@2 test (unit, **/*.Tests.csproj)` → `PowerShell@2 playwright.ps1 install chromium --with-deps` → `DotNetCoreCLI@2 test (E2E, **/*.E2ETests.csproj)` → `DotNetCoreCLI@2 publish` → `PublishPipelineArtifact@1` (artifact: `drop`)
 
