@@ -1,5 +1,11 @@
 trigger: none
 
+parameters:
+- name: runE2ETests
+  displayName: Run E2E tests
+  type: boolean
+  default: false
+
 variables:
   azureSubscription: "Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)"
 
@@ -17,6 +23,7 @@ stages:
             parameters:
               solution: "**/*.sln"
               configuration: "Release"
+              runE2ETests: ${{ parameters.runE2ETests }}
 
   - stage: Deploy
     displayName: Deploy To Azure
@@ -34,6 +41,13 @@ stages:
                   inputs:
                     artifact: drop
 
+                - task: AzureAppServiceManage@0
+                  displayName: Stop App Service
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    Action: Stop Azure App Service
+                    WebAppName: Money2Word
+
                 - task: AzureWebApp@1
                   inputs:
                     azureSubscription: $(azureSubscription)
@@ -41,3 +55,10 @@ stages:
                     appName: Money2Word
                     package: $(Pipeline.Workspace)/drop/*.zip
                     deploymentMethod: zipDeploy
+
+                - task: AzureAppServiceManage@0
+                  displayName: Start App Service
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    Action: Start Azure App Service
+                    WebAppName: Money2Word

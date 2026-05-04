@@ -2,6 +2,7 @@
 parameters:
   solution: '**/*.sln'
   configuration: 'Release'
+  runE2ETests: false
 
 steps:
 - task: UseDotNet@2
@@ -29,19 +30,20 @@ steps:
     projects: '**/*.Tests.csproj'
     arguments: '--configuration ${{ parameters.configuration }} --no-build'
 
-- task: PowerShell@2
-  displayName: Install Playwright browsers (Chromium)
-  inputs:
-    targetType: inline
-    script: |
-      pwsh $(Build.SourcesDirectory)/Money2Word.E2ETests/bin/${{ parameters.configuration }}/net10.0/playwright.ps1 install chromium --with-deps
+- ${{ if eq(parameters.runE2ETests, true) }}:
+  - task: PowerShell@2
+    displayName: Install Playwright browsers (Chromium)
+    inputs:
+      targetType: inline
+      script: |
+        pwsh $(Build.SourcesDirectory)/Money2Word.E2ETests/bin/${{ parameters.configuration }}/net10.0/playwright.ps1 install chromium --with-deps
 
-- task: DotNetCoreCLI@2
-  displayName: Test (E2E tests)
-  inputs:
-    command: test
-    projects: '**/*.E2ETests.csproj'
-    arguments: '--configuration ${{ parameters.configuration }} --no-build'
+  - task: DotNetCoreCLI@2
+    displayName: Test (E2E tests)
+    inputs:
+      command: test
+      projects: '**/*.E2ETests.csproj'
+      arguments: '--configuration ${{ parameters.configuration }} --no-build'
 
 - task: DotNetCoreCLI@2
   displayName: Publish

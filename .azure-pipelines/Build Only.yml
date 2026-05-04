@@ -9,6 +9,12 @@ pr:
       - main
       - develop
 
+parameters:
+- name: runE2ETests
+  displayName: Run E2E tests
+  type: boolean
+  default: false
+
 pool:
   vmImage: 'windows-latest'
 
@@ -23,3 +29,4 @@ stages:
       parameters:
         solution: '**/*.sln'
         configuration: 'Release'
+        runE2ETests: ${{ parameters.runE2ETests }}
