@@ -41,3 +41,4 @@ stages:
               appType: webApp
               WebAppName: Money2Word
               package: $(Pipeline.Workspace)/drop/*.zip
+              deploymentMethod: runFromPackage
