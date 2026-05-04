@@ -34,10 +34,10 @@ stages:
             inputs:
               artifact: drop
 
-          - task: AzureRmWebAppDeployment@5
+          - task: AzureWebApp@1
             inputs:
-              ConnectionType: AzureRM
               azureSubscription: $(azureSubscription)
               appType: webApp
-              WebAppName: Money2Word
+              appName: Money2Word
               package: $(Pipeline.Workspace)/drop/*.zip
+              deploymentMethod: zipDeploy
