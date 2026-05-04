@@ -1,44 +1,43 @@
 trigger: none
 
 variables:
-  azureSubscription: 'Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)'
+  azureSubscription: "Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)"
 
 pool:
   vmImage: windows-latest
 
 stages:
-- stage: Build
-  displayName: Build
-  jobs:
-  - job: BuildJob
-    displayName: Build & Publish
-    steps:
-    - template: build-template.yml
-      parameters:
-        solution: '**/*.sln'
-        configuration: 'Release'
+  - stage: Build
+    displayName: Build
+    jobs:
+      - job: BuildJob
+        displayName: Build & Publish
+        steps:
+          - template: build-template.yml
+            parameters:
+              solution: "**/*.sln"
+              configuration: "Release"
 
-- stage: Deploy
-  displayName: Deploy To Azure
-  dependsOn:
-  - Build
-  jobs:
-  - deployment: DeployToAppService
-    environment:
-      name: Prod
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: drop
+  - stage: Deploy
+    displayName: Deploy To Azure
+    dependsOn:
+      - Build
+    jobs:
+      - deployment: DeployToAppService
+        environment:
+          name: Prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    artifact: drop
 
-          - task: AzureRmWebAppDeployment@5
-            inputs:
-              ConnectionType: AzureRM
-              azureSubscription: $(azureSubscription)
-              appType: webApp
-              WebAppName: Money2Word
-              package: $(Pipeline.Workspace)/drop/*.zip
-              deploymentMethod: runFromPackage
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    appType: webApp
+                    appName: Money2Word
+                    package: $(Pipeline.Workspace)/drop/*.zip
+                    deploymentMethod: zipDeploy
