@@ -113,6 +113,7 @@ function Submit() {
 
 $(document).ready(function () {
     ClearResponses();
+    $("#Amount").trigger("focus");
 
     $("#Amount").on("input", function () {
         const oldVal = $(this).val();

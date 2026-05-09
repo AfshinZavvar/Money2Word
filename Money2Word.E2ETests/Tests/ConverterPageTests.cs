@@ -19,12 +19,12 @@ public class ConverterPageTests(AppHostFixture app, PlaywrightFixture playwright
     {
         var page = await NewPageAsync();
 
-        await page.Locator(".glass-card").WaitForAsync();
+        await page.Locator(".card").WaitForAsync();
         await page.Locator("#Amount").WaitForAsync();
         await page.Locator("#btnSubmit").WaitForAsync();
 
         var title = await page.Locator(".card-title").TextContentAsync();
-        title.Should().Be("Money to Words");
+        title.Should().Be("Money to Word");
     }
 
     [Fact]
