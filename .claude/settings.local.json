@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ENABLE_TOOL_SEARCH": "false"
+  },
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"D:\\\\Workspase\\\\Money2WordCore\" -Force)",
@@ -22,7 +25,9 @@
       "Bash(dotnet --list-runtimes)",
       "Bash(Select-Object -First 50)",
       "Bash(Format-Table Name, FullName)",
-      "Bash(pwsh Money2Word.E2ETests/bin/Debug/net10.0/playwright.ps1 install chromium)"
+      "Bash(pwsh Money2Word.E2ETests/bin/Debug/net10.0/playwright.ps1 install chromium)",
+      "Bash(git checkout *)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
