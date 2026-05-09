@@ -15,8 +15,18 @@ dotnet restore Money2WordCore.sln
 # Build
 dotnet build Money2WordCore.sln
 
-# Run tests
+# Run all tests (unit + E2E)
 dotnet test
+
+# Run unit tests only (fast, no browser)
+dotnet test Money2Word.Tests
+
+# Run a single test class or method
+dotnet test Money2Word.Tests --filter "FullyQualifiedName~Money2WordServiceTests"
+dotnet test Money2Word.Tests --filter "FullyQualifiedName~Money2WordServiceTests.Convert_ValidAmount_ReturnsExpected"
+
+# Run (development, HTTP on localhost:5000)
+dotnet run --project Money2Word --launch-profile http
 
 # Run (development, HTTPS on localhost:7220)
 dotnet run --project Money2Word --launch-profile https
@@ -40,7 +50,7 @@ The compose file expects `ApplicationInsights__ConnectionString` — supply it v
 
 ### Request Flow
 
-1. **MVC UI** — `HomeController` → `Views/Home/Index.cshtml` (glassmorphism dark UI, jQuery AJAX)
+1. **MVC UI** — `HomeController` → `Views/Home/Index.cshtml` (warm ivory editorial UI — Playfair Display + Plus Jakarta Sans, deep forest green / copper palette, jQuery AJAX, no Bootstrap)
 2. **REST API** — `POST /api/show` via `ApiController` → `IMoney2WordService.Convert(decimal)` → `ConversionResult`
 
 ### Client-side (`wwwroot/js/site.js`)

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Money to Word — Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --bg:           #F2EDE4;
+    --surface:      #FDFAF6;
+    --surface-2:    #F7F2EA;
+    --border:       #E0D6C8;
+    --border-focus: #1E4D35;
+    --text-primary: #1C1A17;
+    --text-secondary: #6B6358;
+    --text-muted:   #9C9186;
+    --green:        #1E4D35;
+    --green-light:  #2A6647;
+    --green-pale:   #EBF2EE;
+    --copper:       #B87333;
+    --copper-pale:  #F5EDE4;
+    --error:        #C0392B;
+    --error-pale:   #FDEEEC;
+    --shadow-sm:    0 1px 3px rgba(30,20,10,0.06), 0 1px 2px rgba(30,20,10,0.04);
+    --shadow-md:    0 4px 16px rgba(30,20,10,0.09), 0 1px 4px rgba(30,20,10,0.06);
+    --shadow-lg:    0 12px 40px rgba(30,20,10,0.13), 0 4px 12px rgba(30,20,10,0.08);
+    --radius:       16px;
+    --radius-sm:    10px;
+    --radius-xs:    6px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 60% 50% at 20% 15%, rgba(30,77,53,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 45% at 82% 80%, rgba(184,115,51,0.07) 0%, transparent 65%);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    padding: 2rem 1rem;
+    color: var(--text-primary);
+  }
+
+  /* ---- layout ---- */
+  .page-wrap {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ---- tiny brand strip ---- */
+  .brand-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    background: var(--green);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .brand-mark svg {
+    fill: #FDFAF6;
+  }
+
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+  }
+
+  .brand-name span {
+    color: var(--copper);
+  }
+
+  /* ---- card ---- */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* left accent bar */
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--green) 0%, var(--copper) 100%);
+    border-radius: 0;
+  }
+
+  .card-body {
+    padding: 2.5rem 2.5rem 2.25rem 2.75rem;
+  }
+
+  /* ---- header ---- */
+  .card-header {
+    margin-bottom: 2rem;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 6px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .card-title em {
+    font-style: italic;
+    color: var(--green);
+  }
+
+  .card-subtitle {
+    margin-top: 8px;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  /* ---- divider ---- */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.75rem 0;
+  }
+
+  /* ---- form ---- */
+  .field-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: stretch;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+  }
+
+  .input-wrap:focus-within {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(30,77,53,0.1);
+  }
+
+  .input-wrap.has-error {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+  }
+
+  .currency-prefix {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    background: var(--surface-2);
+    border-right: 1.5px solid var(--border);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--copper);
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .amount-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    padding: 14px 16px;
+    caret-color: var(--green);
+    min-width: 0;
+  }
+
+  .amount-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  .help-text {
+    display: block;
+    margin-top: 7px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ---- convert button ---- */
+  .btn-convert {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 14px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--green);
+    color: #FDFAF6;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.94rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(30,77,53,0.25), 0 1px 2px rgba(30,77,53,0.15);
+  }
+
+  .btn-convert::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+  }
+
+  .btn-convert:hover { background: var(--green-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,77,53,0.32); }
+  .btn-convert:hover::after { transform: translateX(100%); }
+  .btn-convert:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(30,77,53,0.2); }
+  .btn-convert:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+  .btn-convert:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-arrow {
+    font-size: 1rem;
+    transition: transform 0.2s;
+  }
+  .btn-convert:hover .btn-arrow { transform: translateX(3px); }
+
+  /* ---- result panel ---- */
+  .result-panel {
+    margin-top: 1.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--green-pale);
+    border: 1px solid rgba(30,77,53,0.18);
+    padding: 1.25rem 1.5rem;
+    animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .result-label::before {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 1.5px;
+    background: var(--green);
+    opacity: 0.6;
+  }
+
+  .result-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.65;
+    word-break: break-word;
+  }
+
+  .word-highlight {
+    color: var(--green);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  /* ---- error panel ---- */
+  .error-panel {
+    margin-top: 1rem;
+    border-radius: var(--radius-xs);
+    background: var(--error-pale);
+    border: 1px solid rgba(192,57,43,0.2);
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    color: var(--error);
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    animation: slideUp 0.25s ease both;
+  }
+
+  .error-icon { flex-shrink: 0; margin-top: 1px; }
+
+  /* ---- decorative footer ---- */
+  .card-footer-strip {
+    padding: 12px 2.75rem 14px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-note {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  .footer-note span {
+    color: var(--copper);
+  }
+
+  /* ---- demo state toggles (preview only) ---- */
+  .demo-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .demo-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .demo-btn:hover { border-color: var(--green); color: var(--green); }
+  .demo-btn.active { border-color: var(--green); background: var(--green-pale); color: var(--green); font-weight: 600; }
+
+  .demo-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Brand strip -->
+  <div class="brand-strip">
+    <div class="brand-mark">
+      <svg width="14" height="14" viewBox="0 0 14 14">
+        <path d="M7 1.5C4 1.5 1.5 4 1.5 7S4 12.5 7 12.5 12.5 10 12.5 7 10 1.5 7 1.5zm.6 8.8V11H6.4v-.74C5.4 10.1 4.7 9.5 4.6 8.5l1.1-.23c.08.6.5.95 1.2.95.64 0 1.04-.3 1.04-.78 0-.44-.28-.65-1.1-.84-1.12-.27-1.8-.71-1.8-1.65 0-.82.6-1.4 1.56-1.56V3.5h1.2v.89c.9.18 1.45.75 1.55 1.6l-1.08.2c-.09-.53-.43-.84-1.08-.84-.6 0-.96.28-.96.71 0 .41.3.6 1.1.8 1.15.28 1.82.75 1.82 1.7 0 .87-.6 1.5-1.6 1.72z"/>
+      </svg>
+    </div>
+    <span class="brand-name">Money to Word</span>
+  </div>
+
+  <!-- Main card -->
+  <div class="card">
+    <div class="card-body">
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="eyebrow">Currency Converter</div>
+        <h1 class="card-title">Money to <em>Word</em></h1>
+        <p class="card-subtitle">Enter any dollar amount and receive its precise English word representation instantly.</p>
+      </div>
+
+      <hr class="section-divider"/>
+
+      <!-- Input -->
+      <label class="field-label" for="Amount">Enter Amount</label>
+      <div class="input-wrap" id="inputWrap">
+        <span class="currency-prefix">$</span>
+        <input class="amount-input" type="text" id="Amount"
+               placeholder="0.00" autocomplete="off"
+               aria-describedby="helpText responseError"/>
+      </div>
+      <small class="help-text" id="helpText">
+        Between $0.01 and $999,999,999,999,999.99 &mdash; up to 2 decimal places
+      </small>
+
+      <!-- Button -->
+      <button class="btn-convert" id="btnSubmit" type="button">
+        <span>Convert to Words</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+      <!-- Result (shown) -->
+      <div class="result-panel" id="resultPanel">
+        <div class="result-label">Result</div>
+        <div class="result-text" id="responseAmount">
+          <span class="word-highlight">One million</span> two hundred thirty-four thousand five hundred sixty-seven dollars and <span class="word-highlight">eighty-nine</span> cents
+        </div>
+      </div>
+
+      <!-- Error (hidden by default, shown in demo) -->
+      <div class="error-panel" id="responseError" style="display:none">
+        <span class="error-icon">⚠</span>
+        <span>Please enter an amount between $0.01 and $999,999,999,999,999.99.</span>
+      </div>
+
+    </div>
+
+    <!-- Footer strip -->
+    <div class="card-footer-strip">
+      <span class="footer-note">Supports up to <span>15-digit</span> amounts</span>
+      <span class="footer-note">Max: $999,999,999,999,999.99</span>
+    </div>
+  </div>
+
+  <!-- Preview controls (not part of production UI) -->
+  <div class="demo-controls">
+    <button class="demo-btn active" onclick="showState('result')">With Result</button>
+    <button class="demo-btn" onclick="showState('empty')">Empty</button>
+    <button class="demo-btn" onclick="showState('focus')">Input Focused</button>
+    <button class="demo-btn" onclick="showState('error')">Error State</button>
+  </div>
+  <p class="demo-label">Interactive preview — click states above to explore</p>
+
+</div>
+
+<script>
+function showState(state) {
+  const result = document.getElementById('resultPanel');
+  const error  = document.getElementById('responseError');
+  const wrap   = document.getElementById('inputWrap');
+  const input  = document.getElementById('Amount');
+  const btns   = document.querySelectorAll('.demo-btn');
+
+  btns.forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  result.style.display = 'none';
+  error.style.display  = 'none';
+  wrap.classList.remove('has-error');
+  input.value = '';
+
+  if (state === 'result') {
+    input.value = '1,234,567.89';
+    result.style.display = 'block';
+  } else if (state === 'empty') {
+    // all hidden
+  } else if (state === 'focus') {
+    input.focus();
+  } else if (state === 'error') {
+    input.value = '-5';
+    wrap.classList.add('has-error');
+    error.style.display = 'flex';
+  }
+}
+</script>
+
+</body>
+</html>
