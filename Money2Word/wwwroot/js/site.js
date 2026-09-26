@@ -11,19 +11,19 @@ function ValidateInputs() {
     ClearResponses();
 
     if (!amount || !IsValidCurrency(amount)) {
-        $("#Amount").attr("aria-invalid", "true");
+        $("#Amount").attr("aria-invalid", "true").trigger("focus");
         $("#responseError").text("Please enter a valid amount (e.g. 1,234.56)");
         return false;
     }
 
     const numeric = parseFloat(amount.replace(/,/g, ""));
     if (numeric < MIN_AMOUNT) {
-        $("#Amount").attr("aria-invalid", "true");
+        $("#Amount").attr("aria-invalid", "true").trigger("focus");
         $("#responseError").text("Amount must be at least $0.01");
         return false;
     }
     if (numeric > MAX_AMOUNT) {
-        $("#Amount").attr("aria-invalid", "true");
+        $("#Amount").attr("aria-invalid", "true").trigger("focus");
         $("#responseError").text("Amount must not exceed $999,999,999,999,999.99");
         return false;
     }
@@ -39,6 +39,7 @@ const HIGHLIGHT_WORDS = new Set([
 
 function ShowResponse(response) {
     const $amountEl = $("#responseAmount").empty();
+    $("#resultPlaceholder").text("Your amount in words will appear here.");
     if (response.Words) {
         response.Words.split(" ").forEach(function (word, index) {
             if (index > 0) $amountEl.append(document.createTextNode(" "));
@@ -49,6 +50,7 @@ function ShowResponse(response) {
             }
         });
         $("#resultPanel").show();
+        $("#resultPlaceholder").hide();
     }
     $("#responseError").text(response.ErrorMessage || "");
 }
@@ -57,6 +59,7 @@ function ClearResponses() {
     $("#responseAmount").empty();
     $("#responseError").text("");
     $("#resultPanel").hide();
+    $("#resultPlaceholder").text("Your amount in words will appear here.").show();
     $("#Amount").removeAttr("aria-invalid");
 }
 
@@ -72,10 +75,12 @@ function FormatCurrencyInput(value) {
 }
 
 function Submit() {
+    if ($("#btnSubmit").prop("disabled")) return;
     const rawAmount = $("#Amount").val().replace(/,/g, "").trim();
     const $btn = $("#btnSubmit");
 
-    $btn.prop("disabled", true).attr("aria-label", "Converting, please wait").find(".btn-text").text("Converting…");
+    $btn.prop("disabled", true).attr("aria-busy", "true").attr("aria-label", "Converting, please wait").find(".btn-text").text("Converting…");
+    $("#resultPlaceholder").text("Converting your amount…");
 
     $.ajax({
         url: "/api/show",
@@ -84,7 +89,11 @@ function Submit() {
         dataType: "json",
         contentType: "application/json; charset=utf-8",
         timeout: 10000,
-        success: ShowResponse,
+        success: function (response) {
+            // Ignore a result for an amount edited while its request was pending.
+            if ($("#Amount").val().replace(/,/g, "").trim() === rawAmount) ShowResponse(response);
+            else ClearResponses();
+        },
         error: function (xhr, status) {
             ClearResponses();
             if (status === "timeout") {
@@ -106,14 +115,13 @@ function Submit() {
             $("#responseError").text(msg);
         },
         complete: function () {
-            $btn.prop("disabled", false).attr("aria-label", "Convert amount to words").find(".btn-text").text("Convert");
+            $btn.prop("disabled", false).removeAttr("aria-busy").attr("aria-label", "Convert amount to words").find(".btn-text").text("Convert to words");
         }
     });
 }
 
 $(document).ready(function () {
     ClearResponses();
-    $("#Amount").trigger("focus");
 
     $("#Amount").on("input", function () {
         const oldVal = $(this).val();
@@ -122,16 +130,18 @@ $(document).ready(function () {
         const delta = formatted.length - oldVal.length;
         $(this).val(formatted);
         this.setSelectionRange(Math.max(0, oldCaret + delta), Math.max(0, oldCaret + delta));
+        if (!$("#btnSubmit").prop("disabled")) ClearResponses();
     });
 
-    $("#btnSubmit").on("click", function () {
+    $("#converterForm").on("submit", function (e) {
+        e.preventDefault();
+        if ($("#btnSubmit").prop("disabled")) return;
         if (ValidateInputs()) Submit();
     });
 
     $("#Amount").on("keydown", function (e) {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && (e.originalEvent?.isComposing || $("#btnSubmit").prop("disabled"))) {
             e.preventDefault();
-            if (ValidateInputs()) Submit();
         }
     });
 });

@@ -185,4 +185,103 @@ public class ConverterPageTests(AppHostFixture app, PlaywrightFixture playwright
         text.Should().Contain("TWO DOLLARS");
         text.Should().NotContain("ONE DOLLAR");
     }
+
+    [Fact]
+    public async Task Convert_PendingRequest_BlocksEnterAndKeepsGeometry()
+    {
+        var page = await NewPageAsync();
+        var release = new TaskCompletionSource();
+        var requests = 0;
+        await page.RouteAsync("**/api/show", async route =>
+        {
+            Interlocked.Increment(ref requests);
+            await release.Task;
+            await route.ContinueAsync();
+        });
+        await page.Locator("#Amount").FillAsync("1234.56");
+        var before = await page.Locator("#btnSubmit").BoundingBoxAsync();
+        await page.Locator("#Amount").PressAsync("Enter");
+        await Assertions.Expect(page.Locator("#btnSubmit")).ToBeDisabledAsync();
+        await page.Locator("#Amount").PressAsync("Enter");
+        var pending = await page.Locator("#btnSubmit").BoundingBoxAsync();
+        var busy = await page.Locator("#btnSubmit").GetAttributeAsync("aria-busy");
+        release.TrySetResult();
+        await Assertions.Expect(page.Locator("#resultPanel")).ToBeVisibleAsync();
+        requests.Should().Be(1);
+        busy.Should().Be("true");
+        pending.Should().BeEquivalentTo(before);
+        (await page.Locator("#btnSubmit").BoundingBoxAsync()).Should().BeEquivalentTo(before);
+        await Assertions.Expect(page.Locator(".btn-text")).ToHaveTextAsync("Convert to words");
+    }
+
+    [Fact]
+    public async Task Convert_AmountEditedWhilePending_DiscardsOldResult()
+    {
+        var page = await NewPageAsync();
+        var release = new TaskCompletionSource();
+        await page.RouteAsync("**/api/show", async route =>
+        {
+            await release.Task;
+            await route.ContinueAsync();
+        });
+        await page.Locator("#Amount").FillAsync("1");
+        await page.Locator("#btnSubmit").ClickAsync();
+        await page.Locator("#Amount").FillAsync("2");
+        release.TrySetResult();
+        await Assertions.Expect(page.Locator("#btnSubmit")).ToBeEnabledAsync();
+        await Assertions.Expect(page.Locator("#resultPanel")).ToBeHiddenAsync();
+        await page.Locator("#Amount").PressAsync("Enter");
+        await Assertions.Expect(page.Locator("#responseAmount")).ToHaveTextAsync("TWO DOLLARS");
+    }
+
+    [Fact]
+    public async Task Convert_ApiFailure_PreservesInputAndAllowsRetry()
+    {
+        var page = await NewPageAsync();
+        await page.RouteAsync("**/api/show", route => route.FulfillAsync(new()
+        {
+            Status = 400,
+            ContentType = "application/problem+json",
+            Body = "{\"detail\":\"Conversion unavailable. Please try again.\"}"
+        }));
+        await page.Locator("#Amount").FillAsync("42");
+        await page.Locator("#btnSubmit").ClickAsync();
+        await Assertions.Expect(page.Locator("#responseError")).ToHaveTextAsync("Conversion unavailable. Please try again.");
+        await Assertions.Expect(page.Locator("#Amount")).ToHaveValueAsync("42");
+        await Assertions.Expect(page.Locator("#btnSubmit")).ToBeEnabledAsync();
+        await page.UnrouteAsync("**/api/show");
+        await page.Locator("#btnSubmit").ClickAsync();
+        await Assertions.Expect(page.Locator("#responseAmount")).ToHaveTextAsync("FORTY-TWO DOLLARS");
+    }
+
+    [Fact]
+    public async Task Validation_FocusesAmount_AndEditingClearsError()
+    {
+        var page = await NewPageAsync();
+        await page.Locator("#btnSubmit").ClickAsync();
+        await Assertions.Expect(page.Locator("#Amount")).ToBeFocusedAsync();
+        await Assertions.Expect(page.Locator("#Amount")).ToHaveAttributeAsync("aria-invalid", "true");
+        await page.Locator("#Amount").FillAsync("5");
+        await Assertions.Expect(page.Locator("#responseError")).ToBeEmptyAsync();
+        (await page.Locator("#Amount").GetAttributeAsync("aria-invalid")).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(320)]
+    [InlineData(375)]
+    [InlineData(1280)]
+    public async Task LongResult_ReflowsWithoutHorizontalOverflow(int width)
+    {
+        var page = await NewPageAsync();
+        await page.SetViewportSizeAsync(width, 800);
+        await page.EmulateMediaAsync(new() { ReducedMotion = ReducedMotion.Reduce });
+        await page.Locator("#Amount").FillAsync("999999999999999.99");
+        await page.Locator("#Amount").PressAsync("Enter");
+        await Assertions.Expect(page.Locator("#responseAmount")).ToContainTextAsync("TRILLION");
+        var overflow = await page.EvaluateAsync<bool>("document.documentElement.scrollWidth > window.innerWidth");
+        overflow.Should().BeFalse();
+        var result = await page.Locator("#responseAmount").BoundingBoxAsync();
+        result!.X.Should().BeGreaterThanOrEqualTo(0);
+        (result.X + result.Width).Should().BeLessThanOrEqualTo(width);
+    }
 }

@@ -10,7 +10,7 @@ Example: `$1,234.56` becomes `ONE THOUSAND TWO HUNDRED AND THIRTY-FOUR DOLLARS A
 
 ![Money2Word web interface](docs/images/money2word-ui.png)
 
-This README is the single source of truth for project documentation. Third-party license files remain beside their vendored libraries.
+This README documents application behavior and operations. DESIGN.md records the visual system and its runtime token mapping. Third-party license files remain beside their vendored libraries.
 
 ## Features
 
@@ -19,7 +19,7 @@ This README is the single source of truth for project documentation. Third-party
 - Exposes the same conversion through a small JSON API.
 - Returns RFC 7807 problem details for invalid requests.
 - Records request, conversion-duration, and application-version telemetry when Application Insights is configured.
-- Includes 32 service/controller tests and 12 Playwright browser tests.
+- Includes 32 service/controller tests and 19 Playwright browser tests.
 - Supports local .NET execution, Docker Compose, GitHub Actions CI, and manual Azure App Service deployment.
 
 ## Technology
@@ -64,12 +64,12 @@ The default command automatically applies `docker-compose.override.yml` and runs
 
 Configuration follows normal ASP.NET Core precedence: JSON files, environment-specific JSON, environment variables, and command-line arguments. No production value is stored in the repository.
 
-| Setting | Required | Purpose |
-| --- | --- | --- |
-| `ApplicationInsights__ConnectionString` | No | Enables Application Insights locally or in Docker. Keep the value in an untracked `.env`, user-secrets store, or deployment-platform setting. |
-| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Production only | App Service setting consumed by the Application Insights SDK. It is managed in Azure, not GitHub. |
-| `MONEY2WORD_PORT` | No | Host port published by Docker Compose; defaults to `8080`. |
-| `ASPNETCORE_ENVIRONMENT` | No | Selects the ASP.NET Core environment. Compose uses `Development` in the override and `Production` otherwise. |
+| Setting                                 | Required        | Purpose                                                                                                                                       |
+| --------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ApplicationInsights__ConnectionString` | No              | Enables Application Insights locally or in Docker. Keep the value in an untracked `.env`, user-secrets store, or deployment-platform setting. |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Production only | App Service setting consumed by the Application Insights SDK. It is managed in Azure, not GitHub.                                             |
+| `MONEY2WORD_PORT`                       | No              | Host port published by Docker Compose; defaults to `8080`.                                                                                    |
+| `ASPNETCORE_ENVIRONMENT`                | No              | Selects the ASP.NET Core environment. Compose uses `Development` in the override and `Production` otherwise.                                  |
 
 For local telemetry, create `.env` from the safe template and fill it locally:
 
@@ -143,21 +143,19 @@ dotnet test Money2Word.Tests --filter "FullyQualifiedName~Money2WordServiceTests
 
 ## Front-end maintenance
 
-The UI uses a warm editorial design: warm ivory surfaces, deep forest green actions, and copper accents. `Playfair Display` is reserved for display text and `Plus Jakarta Sans` is used for interface and body text; both are loaded by `Money2Word/Views/Shared/_Layout.cshtml`.
-
-The canonical palette is defined as CSS custom properties at the start of `Money2Word/wwwroot/css/site.css`. Preserve the intentional `card::before` accent, the single-line card title, and the content-dependent error panel when changing the layout.
+The UI is a compact conversion slip in mineral gray, white and ink blue, using local sans-serif typography and tabular amount figures. `DESIGN.md` records the design rationale, responsive behavior, states and mapping to the canonical CSS tokens in `Money2Word/wwwroot/css/site.css`.
 
 The following selectors form a contract between `Money2Word/Views/Home/Index.cshtml`, the stylesheet, the browser tests, and `Money2Word/wwwroot/js/site.js`:
 
-| Selector | Purpose |
-| --- | --- |
-| `#Amount` | Formatted amount input and validation state |
-| `#btnSubmit` | Convert action and in-flight disabled state |
-| `.btn-text` | Button status text |
-| `#resultPanel` | Result visibility |
-| `#responseAmount` | Generated word output |
-| `#responseError` | Accessible validation and request errors |
-| `.word-highlight` | Emphasis for scale and currency words |
+| Selector          | Purpose                                     |
+| ----------------- | ------------------------------------------- |
+| `#Amount`         | Formatted amount input and validation state |
+| `#btnSubmit`      | Convert action and in-flight disabled state |
+| `.btn-text`       | Button status text                          |
+| `#resultPanel`    | Result visibility                           |
+| `#responseAmount` | Generated word output                       |
+| `#responseError`  | Accessible validation and request errors    |
+| `.word-highlight` | Emphasis for scale and currency words       |
 
 The browser formatter limits the whole-number portion to 15 digits, limits cents to two digits, and inserts thousands separators. Keep those rules aligned with `InputModel` and `Money2WordService.MaxSupportedAmount`.
 
@@ -168,31 +166,6 @@ The browser formatter limits the whole-number portion to 15 digits, limits cents
 - Keep common framework and compiler settings in `Directory.Build.props`.
 - Preserve `Program` as a public class because the end-to-end host uses it as `WebApplicationFactory<Program>`.
 - Keep the service independent of HTTP types; web-specific validation and responses belong in controllers and models.
-
-## CI/CD
-
-GitHub Actions definitions live in `.github/workflows/`:
-
-- `ci.yml` runs the complete build and all tests for pushes and pull requests targeting `main` or `develop`.
-- `deploy.yml` is manually triggered from `main`; it repeats the complete quality gate, packages the web application, authenticates to Azure through OIDC, and deploys to the `Money2Word` App Service.
-- `build.yml` is the reusable build, test, and optional packaging workflow shared by CI and deployment. Deployment packages are self-contained for the App Service's Windows x86 worker because the application targets a .NET preview runtime that App Service does not install globally.
-
-Production uses the protected `production` GitHub environment. Its `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` secrets identify the federated Azure identity; no client secret or publish profile is stored in GitHub.
-
-The deployment trust uses GitHub OIDC and a user-assigned Azure identity scoped only to the `Money2Word` App Service. The workflow can run manually, but its first job rejects every ref except `main`. GitHub Actions are pinned to immutable commit SHAs, with Dependabot responsible for proposing reviewed updates.
-
-The production package is self-contained for Windows x86 because the application currently targets a .NET 11 release-candidate runtime that Azure App Service does not install globally. The container image uses the matching .NET 11 runtime instead.
-
-## Security
-
-- GitHub secret scanning and push protection are enabled for the public repository.
-- Production authentication is passwordless: GitHub exchanges an OIDC token for the narrowly scoped Azure identity.
-- Workflow permissions default to read-only; only the deployment workflow receives `id-token: write`.
-- Production values stay in Azure App Service settings or the protected GitHub environment.
-- `.env`, `.claude`, editor state, publish profiles, private keys, build output, and test artifacts are ignored.
-- `.env.example` intentionally contains no credential-like value.
-
-If a credential is ever committed, removing it in a later commit is insufficient because Git history remains public. Revoke or rotate it first, then rewrite history if necessary.
 
 ## Repository layout
 

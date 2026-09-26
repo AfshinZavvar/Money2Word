@@ -1,0 +1,15 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["Money2Word/Views", "Money2Word/wwwroot/css", "Money2Word/wwwroot/js"],
+  "locale": "en",
+  "canonicalMap": "DESIGN.md",
+  "requiredCapabilities": ["Form", "Scrollbar"],
+  "commands": {
+    "build": "dotnet build Money2WordCore.sln --configuration Release",
+    "tests": "dotnet test Money2WordCore.sln --configuration Release --no-build"
+  },
+  "requiredCommands": ["build", "tests"],
+  "evidence": {
+    "failurePaths": "Money2Word.E2ETests/Tests/ConverterPageTests.cs"
+  }
+}
