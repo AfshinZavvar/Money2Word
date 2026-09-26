@@ -1,0 +1,5 @@
+Issue ID,Description,State,Severity,Story Points,Project Path,Location Kind,Path,Line,Column,Incident ID,Help Link,Assembly Name,Assembly Version,Assembly Public Key,Snippet
+Project.0002,Project's target framework(s) needs to be changed,Active,Mandatory,1,Money2Word.csproj,File,Money2Word.csproj,,,,,,,,Current target framework: net10.0 Recommended target framework: net11.0
+Api.0003,Behavioral change in selected .NET version,Active,Potential,1,Money2Word.csproj,File,Telemetry\RequestFilterProcessor.cs,26,8,P:System.Uri.AbsolutePath,,,,,var url = request.Url?.AbsolutePath ?? string.Empty;
+Api.0003,Behavioral change in selected .NET version,Active,Potential,1,Money2Word.csproj,File,Telemetry\RequestFilterProcessor.cs,26,8,T:System.Uri,,,,,var url = request.Url?.AbsolutePath ?? string.Empty;
+Api.0003,Behavioral change in selected .NET version,Active,Potential,1,Money2Word.csproj,File,Program.cs,54,12,"M:Microsoft.AspNetCore.Builder.ExceptionHandlerExtensions.UseExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.String)",,,,,"app.UseExceptionHandler(""/Home/Error"");"
