@@ -16,7 +16,7 @@ This README is the single source of truth for project documentation. Third-party
 - Application Insights for request, conversion, and version telemetry
 - xUnit v3, FluentAssertions, and NSubstitute for automated tests
 - Playwright with headless Chromium for browser tests
-- Azure DevOps for CI and Azure App Service deployment
+- GitHub Actions for CI and Azure App Service deployment
 
 NuGet versions are managed centrally in `Directory.Packages.props`. Shared compiler settings and the target framework are in `Directory.Build.props`; `global.json` pins the required SDK.
 
@@ -142,7 +142,7 @@ GitHub Actions definitions live in `.github/workflows/`:
 
 - `ci.yml` runs the complete build and all tests for pushes and pull requests targeting `main` or `develop`.
 - `deploy.yml` is manually triggered from `main`; it repeats the complete quality gate, packages the web application, authenticates to Azure through OIDC, and deploys to the `Money2Word` App Service.
-- `build.yml` is the reusable build, test, and optional packaging workflow shared by CI and deployment.
+- `build.yml` is the reusable build, test, and optional packaging workflow shared by CI and deployment. Deployment packages are self-contained for the App Service's Windows x86 worker because the application targets a .NET preview runtime that App Service does not install globally.
 
 Production uses the protected `production` GitHub environment. Its `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` secrets identify the federated Azure identity; no client secret or publish profile is stored in GitHub.
 
