@@ -6,7 +6,21 @@ Money2Word is an ASP.NET Core web application that converts dollar amounts into 
 
 Example: `$1,234.56` becomes `ONE THOUSAND TWO HUNDRED AND THIRTY-FOUR DOLLARS AND FIFTY-SIX CENTS`.
 
+**Live application:** [money2word.azurewebsites.net](https://money2word.azurewebsites.net/)
+
+![Money2Word web interface](docs/images/money2word-ui.png)
+
 This README is the single source of truth for project documentation. Third-party license files remain beside their vendored libraries.
+
+## Features
+
+- Converts dollars and cents into uppercase English words through trillion scale.
+- Provides an accessible, responsive browser interface with formatted numeric input.
+- Exposes the same conversion through a small JSON API.
+- Returns RFC 7807 problem details for invalid requests.
+- Records request, conversion-duration, and application-version telemetry when Application Insights is configured.
+- Includes 32 service/controller tests and 12 Playwright browser tests.
+- Supports local .NET execution, Docker Compose, GitHub Actions CI, and manual Azure App Service deployment.
 
 ## Technology
 
@@ -16,7 +30,7 @@ This README is the single source of truth for project documentation. Third-party
 - Application Insights for request, conversion, and version telemetry
 - xUnit v3, FluentAssertions, and NSubstitute for automated tests
 - Playwright with headless Chromium for browser tests
-- Azure DevOps for CI and Azure App Service deployment
+- GitHub Actions for CI and Azure App Service deployment
 
 NuGet versions are managed centrally in `Directory.Packages.props`. Shared compiler settings and the target framework are in `Directory.Build.props`; `global.json` pins the required SDK.
 
@@ -45,6 +59,25 @@ docker compose up --build
 ```
 
 The default command automatically applies `docker-compose.override.yml` and runs the app in Development. Use `docker compose -f docker-compose.yml up --build` for the production-shaped configuration. Copy `.env.example` to `.env` to supply `ApplicationInsights__ConnectionString` or change `MONEY2WORD_PORT`; leave telemetry empty to run without it. Stop the containers with `docker compose down`.
+
+## Configuration
+
+Configuration follows normal ASP.NET Core precedence: JSON files, environment-specific JSON, environment variables, and command-line arguments. No production value is stored in the repository.
+
+| Setting | Required | Purpose |
+| --- | --- | --- |
+| `ApplicationInsights__ConnectionString` | No | Enables Application Insights locally or in Docker. Keep the value in an untracked `.env`, user-secrets store, or deployment-platform setting. |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Production only | App Service setting consumed by the Application Insights SDK. It is managed in Azure, not GitHub. |
+| `MONEY2WORD_PORT` | No | Host port published by Docker Compose; defaults to `8080`. |
+| `ASPNETCORE_ENVIRONMENT` | No | Selects the ASP.NET Core environment. Compose uses `Development` in the override and `Production` otherwise. |
+
+For local telemetry, create `.env` from the safe template and fill it locally:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Never commit `.env`, publish profiles, private keys, Azure CLI state, or exported user secrets.
 
 ## API
 
@@ -142,9 +175,24 @@ GitHub Actions definitions live in `.github/workflows/`:
 
 - `ci.yml` runs the complete build and all tests for pushes and pull requests targeting `main` or `develop`.
 - `deploy.yml` is manually triggered from `main`; it repeats the complete quality gate, packages the web application, authenticates to Azure through OIDC, and deploys to the `Money2Word` App Service.
-- `build.yml` is the reusable build, test, and optional packaging workflow shared by CI and deployment.
+- `build.yml` is the reusable build, test, and optional packaging workflow shared by CI and deployment. Deployment packages are self-contained for the App Service's Windows x86 worker because the application targets a .NET preview runtime that App Service does not install globally.
 
 Production uses the protected `production` GitHub environment. Its `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` secrets identify the federated Azure identity; no client secret or publish profile is stored in GitHub.
+
+The deployment trust uses GitHub OIDC and a user-assigned Azure identity scoped only to the `Money2Word` App Service. The workflow can run manually, but its first job rejects every ref except `main`. GitHub Actions are pinned to immutable commit SHAs, with Dependabot responsible for proposing reviewed updates.
+
+The production package is self-contained for Windows x86 because the application currently targets a .NET 11 release-candidate runtime that Azure App Service does not install globally. The container image uses the matching .NET 11 runtime instead.
+
+## Security
+
+- GitHub secret scanning and push protection are enabled for the public repository.
+- Production authentication is passwordless: GitHub exchanges an OIDC token for the narrowly scoped Azure identity.
+- Workflow permissions default to read-only; only the deployment workflow receives `id-token: write`.
+- Production values stay in Azure App Service settings or the protected GitHub environment.
+- `.env`, `.claude`, editor state, publish profiles, private keys, build output, and test artifacts are ignored.
+- `.env.example` intentionally contains no credential-like value.
+
+If a credential is ever committed, removing it in a later commit is insufficient because Git history remains public. Revoke or rotate it first, then rewrite history if necessary.
 
 ## Repository layout
 
@@ -153,6 +201,7 @@ Money2Word/              Web application, conversion service, static assets, and
 Money2Word.Tests/        Unit and controller tests
 Money2Word.E2ETests/     Playwright browser tests and test web host
 .github/workflows/       GitHub Actions CI/CD definitions
+docs/images/             README screenshots and documentation images
 mockup/                  Static UI mockup
 Directory.Build.props    Shared .NET project settings
 Directory.Packages.props Central NuGet package versions
