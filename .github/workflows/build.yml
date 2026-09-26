@@ -48,8 +48,8 @@ jobs:
         run: >-
           dotnet publish Money2Word/Money2Word.csproj
           --configuration Release
-          --no-build
-          /p:UseAppHost=false
+          --runtime win-x86
+          --self-contained true
           --output artifacts/publish
 
       - name: Create deployment package
