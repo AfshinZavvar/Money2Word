@@ -328,3 +328,44 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# -----------------------------------------------------------------------------
+# Money2Word repository-specific exclusions
+# -----------------------------------------------------------------------------
+
+# Local environment files may contain credentials. Keep only the documented
+# placeholder committed.
+.env
+.env.*
+!.env.example
+
+# Local ASP.NET Core configuration and user-secret exports.
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+
+# Local editor and agent state. Shared Claude project configuration remains
+# tracked; only its machine-specific override is excluded.
+.vscode/
+.codex/
+.agents/
+.claude/settings.local.json
+
+# Generated upgrade workspaces and local test/coverage reports.
+.github/upgrades/
+coverage/
+coverage-*/
+playwright-report/
+blob-report/
+test-results/
+*.trx
+*.lcov
+
+# Operating-system metadata.
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# The web launch profiles are shared project configuration and are intentionally
+# committed despite the generic Visual Studio rule above.
+!Money2Word/Properties/launchSettings.json

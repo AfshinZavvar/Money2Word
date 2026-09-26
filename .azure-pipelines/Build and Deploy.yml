@@ -4,10 +4,11 @@ parameters:
 - name: runE2ETests
   displayName: Run E2E tests
   type: boolean
-  default: false
+  default: true
 
 variables:
   azureSubscription: "Money2Word Subscription (bc4f6c10-16bf-4bd6-abf7-7a02968bcd39)"
+  webAppName: "Money2Word"
 
 pool:
   vmImage: windows-latest
@@ -22,6 +23,7 @@ stages:
           - template: build-template.yml
             parameters:
               solution: "**/*.sln"
+              webProject: "Money2Word/Money2Word.csproj"
               configuration: "Release"
               runE2ETests: ${{ parameters.runE2ETests }}
 
@@ -40,25 +42,13 @@ stages:
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     artifact: drop
-
-                - task: AzureAppServiceManage@0
-                  displayName: Stop App Service
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    Action: Stop Azure App Service
-                    WebAppName: Money2Word
+                    path: $(Pipeline.Workspace)/drop
 
                 - task: AzureWebApp@1
+                  displayName: Deploy to Azure App Service
                   inputs:
                     azureSubscription: $(azureSubscription)
                     appType: webApp
-                    appName: Money2Word
-                    package: $(Pipeline.Workspace)/drop/*.zip
-                    deploymentMethod: zipDeploy
-
-                - task: AzureAppServiceManage@0
-                  displayName: Start App Service
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    Action: Start Azure App Service
-                    WebAppName: Money2Word
+                    appName: $(webAppName)
+                    package: $(Pipeline.Workspace)/drop/**/*.zip
+                    deploymentMethod: runFromPackage

@@ -1,6 +1,7 @@
 # Reusable build steps (NO trigger/pool/stages here)
 parameters:
   solution: '**/*.sln'
+  webProject: 'Money2Word/Money2Word.csproj'
   configuration: 'Release'
   runE2ETests: false
 
@@ -9,6 +10,7 @@ steps:
   displayName: Install .NET SDK
   inputs:
     useGlobalJson: true
+    workingDirectory: '$(Build.SourcesDirectory)'
 
 - task: DotNetCoreCLI@2
   displayName: Restore packages
@@ -36,7 +38,7 @@ steps:
     inputs:
       targetType: inline
       script: |
-        pwsh $(Build.SourcesDirectory)/Money2Word.E2ETests/bin/${{ parameters.configuration }}/net10.0/playwright.ps1 install chromium --with-deps
+        pwsh $(Build.SourcesDirectory)/Money2Word.E2ETests/bin/${{ parameters.configuration }}/net11.0/playwright.ps1 install chromium --with-deps
 
   - task: DotNetCoreCLI@2
     displayName: Test (E2E tests)
@@ -49,7 +51,8 @@ steps:
   displayName: Publish
   inputs:
     command: publish
-    publishWebProjects: true
+    publishWebProjects: false
+    projects: ${{ parameters.webProject }}
     arguments: '--configuration ${{ parameters.configuration }} --no-build --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 

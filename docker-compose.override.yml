@@ -1,9 +1,5 @@
 services:
   money2word:
-    ports:
-      # In development, bind host port 5000 to the container's 8080.
-      # The base compose file's "8080:8080" mapping is replaced here.
-      - "5000:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     volumes:
