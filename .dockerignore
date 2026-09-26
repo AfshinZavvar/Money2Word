@@ -1,41 +1,57 @@
-# Build outputs — never needed in the Docker build context
-**/bin/
-**/obj/
+# Docker builds only the web project. Keep development tooling, tests, generated
+# output, and local secrets out of the build context.
 
-# IDE / editor artefacts
-**/.vs/
+# Version control and repository automation
+.git/
+.gitignore
+.gitattributes
+.github/
+.azure-pipelines/
+
+# IDE and local agent state
+.vs/
+.vscode/
+.idea/
+.claude/
+.codex/
+.agents/
 **/*.user
 **/*.suo
 **/*.DotSettings.user
 
-# Version control
-**/.git/
-**/.gitignore
-**/.gitattributes
+# .NET build, test, and coverage output
+**/bin/
+**/obj/
+**/artifacts/
+TestResults/
+coverage/
+coverage-*/
+playwright-report/
+blob-report/
+test-results/
+*.trx
+*.coverage
+*.coveragexml
+*.binlog
 
-# Node (not used here, but guard against accidental future addition)
-**/node_modules/
+# Projects and artifacts not used by the web-image build
+Money2Word.Tests/
+Money2Word.E2ETests/
+mockup/
+Views/
+Money2Word/Properties/
 
-# Docker files themselves (no recursive copy needed)
-**/Dockerfile*
-.dockerignore
-
-# Documentation
-README.md
-*.md
-Screenshot.png
-
-# Environment secret templates — real .env files are gitignored anyway
+# Local configuration and secrets. The example is useful to developers but is
+# not consumed by the Dockerfile.
 .env
 .env.*
-!.env.example
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+**/secrets.json
 
-# Test project and test results — not needed to build the app
-Money2Word.Tests/
-TestResults/
-
-# Azure DevOps pipeline definitions — not needed at runtime
-.azure-pipelines/
-
-# Changesets
-.changeset/
+# Repository-only documentation and Docker orchestration files
+README.md
+Money2WordCore.sln
+docker-compose*.yml
+Dockerfile*
+.dockerignore

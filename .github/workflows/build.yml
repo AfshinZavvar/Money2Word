@@ -1,0 +1,67 @@
+name: Reusable .NET build
+
+on:
+  workflow_call:
+    inputs:
+      upload-artifact:
+        description: Publish and upload the deployable web application package
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Money2WordCore.sln
+
+      - name: Build
+        run: dotnet build Money2WordCore.sln --configuration Release --no-restore
+
+      - name: Run unit and controller tests
+        run: dotnet test Money2Word.Tests --configuration Release --no-build
+
+      - name: Install Playwright Chromium
+        shell: pwsh
+        run: ./Money2Word.E2ETests/bin/Release/net11.0/playwright.ps1 install chromium
+
+      - name: Run end-to-end tests
+        run: dotnet test Money2Word.E2ETests --configuration Release --no-build
+
+      - name: Publish web application
+        if: inputs.upload-artifact
+        run: >-
+          dotnet publish Money2Word/Money2Word.csproj
+          --configuration Release
+          --no-build
+          /p:UseAppHost=false
+          --output artifacts/publish
+
+      - name: Create deployment package
+        if: inputs.upload-artifact
+        shell: pwsh
+        run: Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/Money2Word.zip
+
+      - name: Upload deployment package
+        if: inputs.upload-artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: money2word-package
+          path: artifacts/Money2Word.zip
+          if-no-files-found: error
+          retention-days: 7
