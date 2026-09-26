@@ -13,7 +13,7 @@ parameters:
 - name: runE2ETests
   displayName: Run E2E tests
   type: boolean
-  default: false
+  default: true
 
 pool:
   vmImage: 'windows-latest'
@@ -28,5 +28,6 @@ stages:
     - template: build-template.yml
       parameters:
         solution: '**/*.sln'
+        webProject: 'Money2Word/Money2Word.csproj'
         configuration: 'Release'
         runE2ETests: ${{ parameters.runE2ETests }}
