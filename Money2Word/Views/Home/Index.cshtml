@@ -2,58 +2,40 @@
     ViewData["Title"] = "Money to Word";
 }
 <div class="page-wrap">
+    <header class="page-heading">
+        <h1 class="card-title">Money to Word</h1>
+        <p class="page-description">Dollar amounts, written in English.</p>
+    </header>
 
-    <div class="brand-strip">
-        <div class="brand-mark" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 14 14">
-                <path d="M7 1.5C4 1.5 1.5 4 1.5 7S4 12.5 7 12.5 12.5 10 12.5 7 10 1.5 7 1.5zm.6 8.8V11H6.4v-.74C5.4 10.1 4.7 9.5 4.6 8.5l1.1-.23c.08.6.5.95 1.2.95.64 0 1.04-.3 1.04-.78 0-.44-.28-.65-1.1-.84-1.12-.27-1.8-.71-1.8-1.65 0-.82.6-1.4 1.56-1.56V3.5h1.2v.89c.9.18 1.45.75 1.55 1.6l-1.08.2c-.09-.53-.43-.84-1.08-.84-.6 0-.96.28-.96.71 0 .41.3.6 1.1.8 1.15.28 1.82.75 1.82 1.7 0 .87-.6 1.5-1.6 1.72z" />
-            </svg>
-        </div>
-        <span class="brand-name">Money to Word</span>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-
-            <div class="card-header">
-                <div class="eyebrow">Currency Converter</div>
-                <h1 class="card-title">Money to <em>Word</em></h1>
-                <p class="card-subtitle">Enter any dollar amount and receive its precise English word representation instantly.</p>
-            </div>
-
-            <hr class="section-divider" />
-
-            <label class="field-label" for="Amount">Enter Amount</label>
-            <div class="input-wrap">
-                <span class="currency-prefix" aria-hidden="true">$</span>
-                <input type="text" id="Amount" class="amount-input"
-                       placeholder="0.00" autocomplete="off" autofocus
-                       aria-describedby="helpText responseError" />
+    <section class="card" aria-label="Amount converter">
+        <form id="converterForm" class="converter-form" novalidate>
+            <label class="field-label" for="Amount">Dollar amount</label>
+            <div class="entry-row">
+                <div class="input-wrap">
+                    <span class="currency-prefix" aria-hidden="true">$</span>
+                    <input type="text" id="Amount" class="amount-input"
+                           placeholder="0.00" autocomplete="off" inputmode="decimal" spellcheck="false"
+                           aria-describedby="helpText responseError" />
+                </div>
+                <button id="btnSubmit" type="submit" class="btn-convert" aria-label="Convert amount to words">
+                    <span class="btn-text">Convert to words</span>
+                    <span class="btn-arrow" aria-hidden="true">&#8594;</span>
+                </button>
             </div>
             <small class="help-text" id="helpText">
-                Between $0.01 and $999,999,999,999,999.99 &mdash; up to 2 decimal places
+                $0.01 to $999,999,999,999,999.99 <span>Up to 2 decimal places</span>
             </small>
+            <div id="responseError" class="error-message" aria-live="assertive" role="alert"></div>
+        </form>
 
-            <button id="btnSubmit" type="button" class="btn-convert" aria-label="Convert amount to words">
-                <span class="btn-text">Convert to Words</span>
-                <span class="btn-arrow" aria-hidden="true">&#8594;</span>
-            </button>
-
-            <div id="resultPanel" class="result-panel" style="display:none">
-                <div class="result-label">Result</div>
-                <div id="responseAmount" class="result-text"
-                     aria-live="polite" role="status"></div>
+        <section class="output-area" aria-labelledby="resultLabel">
+            <h2 id="resultLabel" class="result-label">In words</h2>
+            <div class="output-content" aria-live="polite" aria-atomic="true" role="status">
+                <p id="resultPlaceholder" class="result-placeholder">Your amount in words will appear here.</p>
+                <div id="resultPanel" class="result-panel" style="display:none">
+                    <div id="responseAmount" class="result-text"></div>
+                </div>
             </div>
-
-            <div id="responseError" class="error-message"
-                 aria-live="assertive" role="alert"></div>
-
-        </div>
-
-        <div class="card-footer-strip">
-            <span class="footer-note">Supports up to <span class="footer-accent">15-digit</span> amounts</span>
-            <span class="footer-note">Max: $999,999,999,999,999.99</span>
-        </div>
-    </div>
-
+        </section>
+    </section>
 </div>
