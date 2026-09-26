@@ -344,12 +344,19 @@ appsettings.Local.json
 appsettings.*.Local.json
 secrets.json
 
-# Local editor and agent state. Shared Claude project configuration remains
-# tracked; only its machine-specific override is excluded.
+# Local editor and agent state.
 .vscode/
 .codex/
 .agents/
-.claude/settings.local.json
+.claude/
+
+# Private keys, certificates with private material, and Azure publishing files.
+*.key
+*.pem
+*.p12
+*.pfx
+*.publishsettings
+*.pubxml.user
 
 # Generated upgrade workspaces and local test/coverage reports.
 .github/upgrades/
